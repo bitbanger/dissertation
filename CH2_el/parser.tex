@@ -1,0 +1,65 @@
+\input{CH2_el/ulf}
+
+\section{Episodic Logic Parsing}
+\label{sec:parsing}
+This section describes the means by which we parse Episodic Logical Forms (ELFs) from English sentences. When constructing the parser, we opted not to construct an explicit dataset of ELF/English pairs, as is customary for both training and evaluation in many semantic parsing endeavors; the cost of such involved manual annotation was not tractable for this project. Instead, we exploit the structure of the EL parsing pipeline (Figure~\ref{fig:el_pipeline}), in which an initial semantic parse is handled by a ULF parser, and final ELFs are obtained by performing further steps.
+As we discussed in Section~\ref{subsec:ulf}, a hand-annotated set of ULF/English pairs \textit{does} exist, and the quality of existing ULF parsers has been evaluated with regard to it.
+Using ULF parser performance as a baseline, we argue that the remaining steps---quantifier scoping, anaphora resolution, event de-indexing, word sense disambiguation, and canonicalization---do not degrade the semantic correctness of the underlying logical representation of the ULFs.
+We discuss and bound the errors each step \textit{could} introduce, and argue that the types of those errors are \textit{orthogonal} to the types of errors already measured in ULF parsing; and \textit{analyzable}, either by evaluating the performance of a relevant pipeline step, or by making simplifying assumptions about the EL schema use case.
+%While these remaining tasks are by no means trivial to implement, their separation from ULF parsing is key to our argument
+%After comparing and choosing from ULF parsers in Section~\ref{subsec:ulf}, we now discuss our implementation of only those remaining steps necessary to obtain the final ELFs: quantifier scoping, anaphora resolution, event de-indexing, word sense disambiguation, and canonicalization.
+% TODO: expand on each of those steps?
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{CH2_el/parserstages}
+    \caption{The information flow diagram of the schema project's EL parser. Rounded, purple rectangles represent software components in the parser pipeline. Sharp, pale rectangles represent the data flowing between components, and are annotated with a specific example of each stage of the parse. Solid, dark arrows represent the forward flow of information between components. Dashed, red arrows represent \textit{theoretical} backward flow of information, i.e., downstream decisions that may prompt changes in upstream decisions; currently, no backward information flow is implemented in our EL parser.}
+    \label{fig:my_label}
+\end{figure}
+
+\subsection{Evaluating ELF Parser Correctness}
+Given a hand-annotated set of English/ELF pairs, we could evaluate the correctness of a parser using some distance metric between a parsed ELF and a ``gold'' ELF. Absent this dataset, however, we adopt an inductive definition of ELF correctness based on a similar definition of ULF correctness and several other measures of correctness for the remaining pipeline steps. The components of a parsed ELF's correctness are as follows:
+
+\begin{enumerate}
+    \item The correctness of the parsed ULF.
+    \item The accuracy of the word sense disambiguation step, which we take to be $0\%$, as we chose to consider this problem out-of-scope for the current phase of the EL schema project.
+    \item The accuracy of the anaphora/coreference resolution step, for which we adopt the accuracy measurements of the underlying coreference analysis engine integrated into the EL parsing pipeline.
+    \item The accuracy of quantifier scoping.
+    \item The accuracy of canonicalization, which we conservatively define to be the proportion, evaluated on a set of held-out stories, of final ELFs that conform to the grammar given by Figure~\ref{fig:el_cfg}.
+    \item Event de-indexing accuracy, which
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \input{CH2_el/el_cfg}
+    \normalsize
+    \caption{A context-free grammar representing the simplified Episodic Logic language used for EL schemas. $\phi$ and $\phi_{atom}$ are the rules for forming composite and atomic propositions, respectively; $P$ and $P_{atom}$ are similar rules for complex and atomic predicates. $M$ is a rule for forming predicate modifiers, and $I$ is a rule for forming domain individuals in the EL ontology. The atomic individual rule, $I_{lex}$, may form names, pronouns, Skolem constants, numbers, and variables.}
+    \label{fig:el_cfg}
+\end{figure}
+
+\subsection{ULF-to-ELF Conversion}
+In converting ULFs to ELFs, we adapt the implementation of the EL parser given by \citet{schubert-2014-treebank} to accept pre-formed ULFs rather than creating its own from Treebank parses. Having separated ULF into a prior pipeline step, we refer to this modified parser as \texttt{ulf2elf}. \texttt{ulf2elf} handles quantifier scoping, temporal de-indexing, and some canonicalization steps. We discuss those steps here.
+
+\subsection{Post-processing}
+The final ELFs obtained from the existing ULF-to-ELF transduction implementation by \citet{schubert-2014-treebank} (heretofore referred to as \texttt{ulf2elf}) are not immediately suitable for use in the schema system; the complex, nested formulas that \texttt{ulf2elf} outputs often require further breakdown and Skolemization to align with the simple, canonicalized formulas found in EL schemas. The simplified EL grammar we assume within the schema system is given by Figure~\ref{fig:el_cfg}; this grammar defines what a ``correct'' EL formula is in the context EL schemas. Even without assuming such a restrictive grammar, however, \texttt{ulf2elf} still introduces a significant number of errors into its output ELFs. Fortunately, however, as \texttt{ulf2elf} is a deterministic, rule-based program, many error types can be classified into patterns and fixed with additional post-processing rules, which we describe here.
+
+We post-process \texttt{ulf2elf} output formulas by iteratively applying two sets of rules---one set written in Lisp and the other implemented as a set of TTT transductions---until a full iteration passes with no changes made. Though more computationally expensive, the Lisp post-processing rules allow for more complicated fixes than TTT would. All of the rules, regardless of implementation, fall into one of the following four categories:
+
+% TODO: rewrite the following subsubs; they're pasted from an email I wrote to Len
+\subsubsection{Canonicalization Rules}
+These rules perform top-level Skolemization, conjunction splitting, lambda-predicate splitting and removal, normalization of parentheses, re-arrangement of sentential operators and modifiers, and other similar transductions meant to reduce the size and standardize the form of complex ELFs. These rules were developed with the theory and literature of EL in mind, and were not crafted to improve performance on a development story corpus.
+
+\subsubsection{Error Correction Rules}
+Rules that fix strange artifacts of the imperfect parsing, whether ULF or ELF parsing, up to that point; some formulas just come out in invalid ways but in identifiable patterns, so rules can be written for them. These were developed on a dev set of stories and evaluated on a test set of stories to see how many invalid ELFs were made valid. They're highly technical and granular.
+
+\subsubsection{Simplifying Rules}
+Rules that convert formulas into equivalent and/or more meaningful ones, like "There~is~X"~$\Rightarrow$~"X~is", or, in the case of a less equivalent but more useful transduction, the removal of progressive markers from verbs to make sure they play nicer with the simple event schemas. Some of these rules, like the progressive removal rule, have semantic compromises in order to minimize the already massive engineering effort required to get ELFs to match between schemas and stories. These were developed on a dev set of stories.
+
+\subsubsection{Schema-Specific Rules}
+Rules that do things that are just nice for schema learning. One example is adding (X AGENT.N) to stories where X is a lexical name or personal pronoun. Another example is shifting past-tense stories forward in time to "NOW", because past-tense stories only have (BEFORE NOW\#) as their deindexing relations, which ends up not imposing any ordering constraints between the story episodes; I convert these to AT-ABOUT, effectively making the story present-tense, to get that ordering. These were developed without reference to any specific story corpus, and mostly just occurred to me as I was programming.
+
+\iffalse
+This section describes the means by which we parse Episodic Logical Forms (ELFs) from English sentences. When constructing the parser, we opted not to construct an explicit dataset of ELF/English pairs, as is customary in many semantic parsing endeavors. Instead, we exploit the structure of the EL parsing pipeline (Figure~\ref{fig:el_pipeline}), in which most semantic parsing is handled by the ULF parser. Because a hand-annotated ULF/English dataset \citep{kim2019IWCS} and several ULF parsers \citep{kim2021transition,kim2021naloma} already exist, we can implement only those remaining steps necessary to obtain the final ELFs.
+
+In Section~\ref{subsec:ulf}, we describe and compare existing ULF parsers, including a novel language model-based parser developed as part of the schema project. Then, in Section~\ref{subsec:elparsing}, we discuss the processing steps necessary to obtain ELFs from ULFs.
+\fi

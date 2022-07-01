@@ -1,0 +1,57 @@
+\section{ULF Parsing}
+
+\begin{figure}
+\includegraphics{CH2_el/el_pipeline.pdf}
+\label{fig:el_pipeline}
+\caption{The stages of the Episodic Logic parsing pipeline. Solid arrows represent the flow of data through the pipeline, and are labeled with the steps needed to obtain the target forms. The relevant changes are highlighted in each stage's example.}
+\end{figure}
+
+\label{subsec:ulf}
+Unscoped Logical Form (ULF), an intermediate form of Episodic Logic, formally represents the semantic types and predicate-argument structures of natural language. It is the first, and most developed, step in the ``divide and conquer'' approach to EL parsing illustrated in Figure~\ref{fig:el_pipeline}. In order to obtain ELFs from ULFs, one must, at the very least, perform quantifier scoping, resolve anaphora, deindex the temporal coordinates of events, and disambiguate word senses, and \textit{canonicalization} (the minimization of ELFs into separate propositions by Skolemizing existentially quantified variables at the top level).
+
+\citet{kim2022corpus} fully describes ULF and the current state of ULF parsing. In this section, we describe our language model-based ULF parser \citep{gibson2022language} and evaluate it against two other ULF parsers: a symbolic, rule-based transduction from constituency parses \citep{kim2021naloma} and a neural cache transition parser \citep{kim2021transition}, ultimately justifying our choice of the rule-based transduction method.
+
+\input{CH2_el/ulf-gpt2}
+\iffalse
+\subsection{Language Model-Based ULF Parsing}
+In crafting an EL parsing pipeline, we experimented with using GPT-2, a state-of-the-art language model architecture based on a decoder-only transformer \citep{Radford2019LanguageMA}. Our intuition was that, given ULF's similarity to the syntactic surface form of English, a pre-trained language model might be able to perform well at ULF parsing by casting the problem as one of translation.
+
+To fine-tune the language model, we used the corpus of English sentences paired with hand-annotated ULFs provided by \citet{kim2021transition}. We split our training (1,378), development (180), and test (180) sentences as prescribed in that paper. The data splitting aims to evenly distribute document-level topics among each subset of the sentences, and to avoid score inflation from linguistic similarity between adjacent sentences.
+
+Given a tokenized English sentence $e = e_{1} \cdot e_{2} \cdot \ldots \cdot e_{m}$ and a tokenized s-expression representation of a corresponding ULF $u = u_{1} \cdot u_{2} \cdot \ldots \cdot u_{n}$, we fine-tuned our English-to-ULF GPT2 model for 327 epochs to maximize the joint probability of the concatenated sequences \footnote{The special tokens \texttt{<SEP>} and \texttt{<END>} were included between and after the two concatenated sequences, respectively, for every pair in the dataset.} $e$ and $u$, $P_{\textrm{GPT2}}(u,e) = P_{\textrm{GPT2}}(u|e) \cdot P_{\textrm{GPT2}}(e)$, where:
+
+\vspace{3mm}
+
+$\mathlarger{P_{\textrm{GPT2}}(u|e) = \prod_{i=1}^{n} P_{\textrm{GPT2}}(u_{i} | e_{1:m},u_{1:i-1})}$
+\vspace{1mm}
+
+$\mathlarger{P_{\textrm{GPT2}}(e) = \prod_{j=1}^{m} P_{\textrm{GPT2}}(e_{j} | e_{1:j-1})}$
+
+\vspace{3mm}
+
+To generate ULFs from English sentences, the model is prompted with an English sentence and the separator token \texttt{<SEP>}, and stopped after it produces the end token \texttt{<END>}. We choose from the space of possible completions by running a beam search, with 10 beams, for the sequence with the highest cumulative log probability.
+\fi
+
+\subsection{ULF Parser Evaluation and Comparison}
+\label{subsec:ulf-eval}
+We evaluate all ULF parsers in the manner of \citet{kim2021transition}: ULFs are converted into the penman format \citep{kasper-1989-flexible} and evaluated using the \elsmatch \citep{kim2016high} and \sembleu \citep{song-gildea-2019-sembleu} metrics. As another semantic representation, the Abstract Meaning Representation (AMR) \citep{amr}, is convertible to the same penman format, comparisons to two AMR parsers---the sequence-to-sequence graph parser (STOG) \citep{zhang-etal-2019-amr} and the graph-sequence iterative inference parser (GS) \citep{cai-lam-2020-amr}---are also possible, and were evaluated by \citet{kim2021transition}. The results of the evaluation are given in Table~\ref{T2}.
+
+\begin{table}
+\centering
+\begin{tabular}{c|c|c}
+\toprule
+\multicolumn{1}{c|}{\textbf{Model}}&\multicolumn{1}{c|}{\sembleu}&\multicolumn{1}{c|}{\elsmatch}\\
+% \textbf{CORA}&\textbf{Citeseer}&\textbf{Pubmed}
+%\midrule
+%Model&Accuracy&Accuracy&Accuracy\\
+\midrule
+\texttt{STOG} \citep{zhang-etal-2019-amr}&0.13&0.34\\
+\texttt{GS} \citep{cai-lam-2020-amr}&0.34&0.53\\
+\texttt{cache-transition} \citep{kim2021transition}&\textbf{0.47}&0.60\\
+\texttt{\textbf{ulf-from-sentences}}&\textbf{0.47}&\textbf{0.65}\\
+\texttt{ulf-gpt2}&0.43&0.63\\
+\bottomrule
+\end{tabular}\\[10pt]
+\caption{ULF parsing results. All scores are out of 1.0. \texttt{ulf-from-sentences} is the rule-based transduction parser mentioned in \citep{kim2021naloma}.}
+\label{T2}
+\end{table}

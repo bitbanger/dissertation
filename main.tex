@@ -1,0 +1,119 @@
+% Purpose: an example .tex file for the thesis.
+
+\documentclass[11pt,leqno]{report}
+
+\usepackage{ur_thesis}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{xcolor}		% make links dark blue
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\hypersetup{colorlinks=true,citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{amsfonts}
+\usepackage{relsize}
+\usepackage{array}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{shapes,decorations}
+%\usetikzlibrary{graphdrawing}
+\usetikzlibrary{arrows,automata}
+\usetikzlibrary{positioning}
+\usetikzlibrary{graphs}
+%\usegdlibrary{trees}
+\usepackage{enumitem}
+\usepackage{svg}
+%\usepackage{fixltx2e}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{epigraph}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage[noend]{algorithmic}
+\usepackage{xspace}
+\usepackage{booktabs}
+
+\newcommand\nesl{\texttt{NESL}}
+\newcommand\doubleplus{+\kern-1.3ex+\kern0.8ex}
+\newcommand\mdoubleplus{\ensuremath{\mathbin{+\mkern-10mu+}}}
+\newcommand\mbigdoubleplus{\mathlarger{\mathlarger{\mathlarger{\ensuremath{\mathbin{+\mkern-10mu+}}}}}}
+\newcommand{\mono}[1]{{\texttt{#1}}}
+\newcommand{\el}[1]{\mono{#1}} % Formatting
+\newcommand{\elsmatch}{\textsc{EL-Smatch}\xspace}
+\newcommand{\sembleu}{\textsc{SemBLEU}\xspace}
+\newcommand{\smatch}{\textsc{Smatch}\xspace}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+% citation style can be whatever is "accepted in your field"
+\usepackage[round]{natbib}
+
+\begin{document}
+
+\lstdefinestyle{Schemas}{
+morekeywords={},
+basicstyle=\ttfamily\footnotesize\bfseries,
+stringstyle=\ttfamily\color{stringcolor},
+commentstyle=\ttfamily\color{commentcolor},
+keywordstyle=\ttfamily\color{stringcolor},
+identifierstyle=\texttt,
+tabsize=2
+}
+\lstdefinestyle{EL}{
+morekeywords={},
+basicstyle=\ttfamily,
+stringstyle=\ttfamily\color{stringcolor},
+commentstyle=\ttfamily\color{commentcolor},
+keywordstyle=\ttfamily\color{stringcolor},
+identifierstyle=\texttt,
+tabsize=2
+}
+\lstset{keepspaces=true}
+\colorlet{stringcolor}{red}
+\colorlet{commentcolor}{black}
+
+\sloppy
+\title{Episodic Logic Schema Learning}
+\author{Lane Lawley}
+\thesissupervisor{Professor Lenhart K. Schubert}
+\thesisdepartment{Department of Computer Science\\
+  Arts, Sciences and Engineering\\
+  Edmund A. Hajim School of Engineering and Applied Sciences}
+\maketitle
+
+\include{preamble/dedication}
+
+\tableofcontents
+\listoftables
+\listoffigures
+
+\include{preamble/cv}
+\include{preamble/acknowledgments}
+\include{preamble/abstract}
+\include{preamble/contributors}
+
+\include{CH1_intro/intro}
+
+\include{CH2_el/CH2_main}
+
+%\input{CH3_learning/elschemas}
+\include{CH3_schemas/CH3_main}
+
+\include{CH4_learning/CH4_main}
+
+%\include{conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\chapter{More stuff}
+
+
+\end{document}

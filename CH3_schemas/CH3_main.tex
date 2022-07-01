@@ -1,0 +1,338 @@
+\chapter{EL Schemas}
+
+Past approaches to statistical schema learning have largely represented schemas as sequences of lexical event tuples \citep{chambers2008unsupervised,pichotta2016learning}. Seeking a richer representation, we adopt the rich, EL-based schema framework presented by \citet{Lawley2021LearningGE}, henceforth referred to in this paper as \textit{EL schemas}. EL schemas are section-based: the main two sections, \texttt{STEPS} and \texttt{ROLES}, enumerate the temporal events (``steps'') that make up the schema, and the type and relational constraints on the schema's participants, respectively (see Figure~\ref{fig:singleschema}).
+
+Designed as a suitable representation of human-centric events, EL schemas can also specify preconditions, postconditions, arbitrary temporal relationships between steps, and the \textit{goals} of individual participants in the schema. All schema participants are represented as typed variables, all sharing a scope within the same schema, and formulas may include any number of variables as arguments. EL schemas also allow for recursive \textit{nesting}: a schema may be embedded as a step in another schema, and implicitly expanded to check constraints or generate inferences.
+
+% \section{Protoschema Identification as FrameNet Parsing}
+
+%\section{Latent Schema Sampling}
+
+%\section{Schema Generalization}
+
+\input{CH3_schemas/schema_semantics}
+
+%\subsection{Certainties}
+
+\input{CH3_schemas/schema_hierarchies}
+
+\input{CH3_schemas/protoschemas}
+
+
+\iffalse
+In this chapter, we describe the schema representation we've developed, the idea of the ``protoschema approach'' to schema learning, and the system we've implemented to perform story parsing and schema learning.
+
+\section{Schema Representation}
+A knowledge base used for story understanding should be computationally manipulable and facilitate powerful inference procedures. Past approaches, like those described in Chapter~\ref{ch:bg}, have made use of either simplified tuple event representations or FOL-based logical representations with poor expressiveness. Our EL-based schema system maintains a form similar in expressive capacity to natural language, while still offering representational features not found in existing schema learning systems, such as inter-related entity slots, complex temporal relationships between events, schemas embedded as steps within other schemas, and probabilistic certainty scores for constraints.
+
+In this section, we will describe our schema model, examples of which can be seen in Figures \ref{fig:protoschema}, \ref{fig:schema_match}, and \ref{fig:eg_schema}. Our schemas are formulated in terms of Episodic Logic (EL) formulas, organized into sections. We describe the sections below.
+
+\subsection{Overall Structure}
+A schema is represented by its \textit{header}, seen in line 1 of Figure~\ref{fig:eg_schema}. A schema's header is an EL proposition and an episode characterized by the proposition, here \texttt{?E}. The header episode summarizes the entire schema. This can be used to ``embed'' a schema as a step in another schema---in fact, each step in Figure~\ref{fig:eg_schema} is a header for an embedded schema---or it can be matched directly to a proposition in a story to automatically invoke the schema.
+
+The rest of the schema is laid out in two types of sections: \textit{fluent} and \textit{nonfluent} sections. Nonfluent sections such as \texttt{Roles} and \texttt{Episode-relations}, whose formula IDs all begin with exclamation marks, contain formulas that hold true regardless of time. Fluent sections, such as \texttt{Steps} and \texttt{Preconds}, contain formulas identified by variables starting with question marks; these formulas are susceptible to change over time. We will now examine these sections, and what they're used for, in more detail.
+
+\subsection{Roles}
+The \textbf{Roles} section of a schema is a \textit{nonfluent} section meant for putting ``eternal'' type constraints on the participating entities in the schema. All of the schema's variables, starting with question marks, can be viewed as Skolem functions of the schema's header episode, and they can be constrained in this section. In addition to type constraints, e.g. \texttt{(?X DOG.N)}, relational constraints between entities can also be specified in this section, e.g. \texttt{(?X PERTAINS\_TO.N ?Y)}.
+%%, and they can be constrained in this section.
+%% Not clear what this means -- you've already mentioned type constraints; do you mean to refer to other nonfluent contraints here? -LS
+%% L: I've added a mention of relational constraints in addition to type constraints.
+
+In Figure~\ref{fig:protoschema}, the protoschema for movement from location to location, there are three main participating entities: \texttt{?X}, the agent doing the movement, and \texttt{?L1} and \texttt{?L2}, the source and destination locations. Those ``types'' are EL predicates, and are enforced by the predications in the protoschemas \textbf{Roles} section.
+
+When formulas are unified with a schema, these formulas are used as constraints for evaluating whether the individuals bound to the variables satisfy the schema's semantics. They are evaluated in a knowledge base populated by facts from the story, and potentially by formulas predicted from other confirmed schema matches. Partial matches, or matches with partial constraint satisfaction, can still be valuable: ``Breaking the mold'' of known schemas is part of the learning process. More detail on constraint evaluation and scoring will be given in Section~\ref{sec:scoring}.
+%% Minor US stylistic convention: Start with capitalized word after a colon, iff the material after the colon is a complete sentence.
+
+\subsection{Preconditions, Postconditions, and Goals}
+Actions undertaken in the real world are frequently goal-driven, and a representation of how actions change the world and why characters might perform them is necessary to understand the story. The episodes characterized by the formulas in the precondition section are tacitly assumed to start before the schema's header episode (adjoining or overlapping it), and those characterized in the postcondition section extend beyond the header episode (post-adjoining or overlapping it).
+%% Lane, we've mulled over the above temporal relations before, and I had conceded that it's ok to say the precond episodes immediately precede the header episode, while the postcond episodes immediately follow it; overlap isn't precluded in the sense that those precond & postcond episodes may be parts of larger episodes of the same type. However, on further thought, this view of preconds and postconds could lead to contradiction for multistep schemas. For example, consider making toast with peanut butter, requiring toasting the piece of bread and then spreading peanut butter on it. The goal state is that we have the piece of bread in a "toasted" state, with peanut butter on it. However, The bread should be in a "toasted" state already when we spread the peanut butter, and we may well wish to assert that constraint. But if we take it to be implicitly true that the postcondition, say ?e4, corresponding to the toasted state starts at the end of the overall schema episode, we can't consistently assert a constraint that it starts right after the toasting episode.
+%% L: I suppose I don't see a problem: the ``default'' constraints on the postconditions of 1. toastedness and 2. peanut-butteriness would say that both postconditions become true at some point during the schema episode, and are true immediately after the schema episode. Further constraints could be added as episode relations, saying that postcondition 1 is true at the start of postcondition 2.
+
+Schema matches can be ``chained together'' into composite, multi-step schemas by unifying their pre- and post-conditions, or their goals and post-conditions. An example of a learned ``chained'' schema is given in Figure~\ref{fig:eg_schema}.
+
+\subsection{Temporal Relations}
+Schemas characterize EL episodes that encompass their temporal duration. They also contain many other episodes, such as steps and preconditions, with their own temporal bounds. These episodes can all be complexly inter-related using constraints from the Allen Interval Algebra \citep{allen1983maintaining}. Pre- and post-conditions are implicitly constrained to be true at the start and end of the schema's header episode, respectively, and steps, by default, are ordered sequentially as listed in the schema, but additional constraints can be specified in the \textbf{Episode-relations} section of each schema. To evaluate these interval constraint propositions, we implemented a time graph specialist module \citep{gerevini1993efficient}.
+
+
+\section{Schema Learning}
+\label{sec:learning}
+In this section, we describe how our system learns new schemas from natural language stories. We describe our parsing process for natural language stories, the process of matching parsed stories to schemas, how schema matches can be generalized to create new schemas, and how partial schema matches can be used to predict events in similar stories with missing details.
+
+\subsection{The Protoschema Approach}
+As noted, generate new schemas from stories by starting with an initial set of \textit{protoschemas} that we would expect a 1- or 2-year-old child to have; these encode very general knowledge about physical and communicative actions, with their preconditions and effects. Examples of protoschemas we've already written include movement of an agent from one location to another (Figure~\ref{fig:protoschema}), consumption of food, and possession and transfer of possession.
+These protoschemas are then invoked by actions in stories---for example, the ``travel'' protoschema in Figure~\ref{fig:protoschema} matched a ``climb'' action in the story in Figure~\ref{fig:story} to yield a ``monkey climbs a tree'' schema, shown in Figure~\ref{fig:schema_match}. \footnote{``travel'' was invoked by ``climb'' by way of the WordNet hypernym hierarchy.}
+
+\subsection{Story Parsing}
+\label{sec:parsing}
+Formulas in schemas are represented in Episodic Logic, and can only be matched to other EL formulas. We have developed a stage-based parser to convert stories into EL formulas ready to be matched with schemas. In the first stage, the raw story text is run through the AllenNLP co-reference analyzer \citep{Gardner2017AllenNLP}, and co-referring word spans are tagged with entity numbers. The text is then parsed by the BLLIP parser \citep{charniak2000maximum}, the output of which is transduced into \textit{Underspecified Logical Form} (ULF) \citep{kim2019IWCS}, an underspecified variant of EL without scoped quantifiers or temporally de-indexed tenses. A series of transduction rules then converts the ULF to full EL, splitting complex formulas into conjunctions of simpler ones to facilitate ``piecewise'' matching with the short formulas in schemas.
+
+\subsection{Matching}
+
+\textit{Matching} formulas in semantically parsed stories to formulas in schemas underlies both learning and prediction. The formulas comprising a schema are intended to be relatively simple---with complex conjunctions split into separate formulas---and unifiable with formulas parsed from real stories. Unification of a story formula with a schema formula binds individual constants from the former to variables in the latter. These bindings are then substituted in the rest of the schema instance, thereby ``filling in'' some of the missing information. %% I thought the following caveat is needed. -LS
+This information is likely to be correct if one or more story formulas matched to the same schema are apt to indicate the occurrence of the kind of pattern of events the schema captures. 
+We refer to any schema instance with one or more bound variables as a \textit{match}.
+
+Using EL formula unification as a primitive, we implement schema matching roughly according to Algorithm~\ref{alg:matching}. In its simplest form, the algorithm iterates through the formulas in an EL parse of a story, matching each formula to any schema formula it can and applying the bindings to the schema. When the story has been fully examined, the match is complete.
+
+However, the order of matched formulas matters: for example, if there are two agent slots in an ``X feeds Y'' schema, we may match the first suitable agent we see in the story to X, and that binding would persist for the remainder of the matching process, even if Y may have been a better option. To address this, we ``shuffle'' each story's EL formulas some number of times, and repeat the matching algorithm, stochastically pursuing a better match. With efficient caching of lower level unification operations, this turns out to be a fairly efficient way to explore the match space of a story and a schema.
+
+\subsubsection{Partial Matches and Scoring}
+\label{sec:scoring}
+
+When a schema is matched to a story, some constraints may be broken; this is a natural part of the learning process. A schema for a cow eating grass matching to a story about a dog eating grass violates the cow constraint on a participating entity, but is a valuable source of knowledge if properly generalized. On the other hand, too many broken constraints are indicative of a poor match between a schema candidate and a story.
+
+Schema matches are essentially scored by counting satisfied constraints, with some added complexity. For example, nonfluent Role constraints are worth half as many points as fluent events in the Steps section that have been matched to the story---intuitively, a full event is a stronger signal than a property of an entity. Confirming the schema's header formula is worth twice the points of any other event.
+
+For inexact matches---e.g. \texttt{(?X COW.N)} and \texttt{(ROVER.NAME DOG.N)}---the score of the binding is further weighted by the approximate semantic similarity of the two words. If one subsumes the other on a hypernym hierarchy, the strength is scaled by the distance of the two in that hierarchy. If neither subsumes the other, but they share a common ancestor hypernym, the strength is half their average distance to that ancestor.
+
+The hypernym score accounts for half of the overall weight of an inexact match; the other half is provided by their semantic similarity according to a pre-trained word embedding model. \footnote{\textit{GoogleNews-vectors-negative300.bin}, \citet{NIPS2013_5021}}
+
+
+\subsection{Generalizing Matches}
+To generalize a match into a new, ``learned'' schema, we need to incorporate incidental information about the matched value. For example, the variables of the \texttt{travel.v} protoschema in Figure~\ref{fig:protoschema} can be bound by the constants in the formula \texttt{((MONKEY27.SK (CLIMB.V TREE28.SK)) ** E34.SK)} in the story in Figure~\ref{fig:story_parse}, but re-generalizing the constants \texttt{MONKEY27.SK} and \texttt{TREE28.SK} into variables would remove all the information we learned. However, if we incorporate formulas about the types of those objects into our new schema---like the formulas \texttt{(MONKEY27.SK MONKEY.N)} and \texttt{(TREE28.SK TREE.N)}---we can then generalize the constants but maintain knowledge of their types.
+
+\subsubsection{Re-Matching Learned Schemas}
+
+Once a protoschema has been matched to a story and generalized into a learned schema, it may contain extraneous details or overly specific constraints. However, the space of possible generalizations is large: if there are N constraints with even only one possible generalization each, like \texttt{DOG.N} and \texttt{ANIMAL.N}, the possible generalizations of the entire schema number $2^N$.
+
+To learn reasonable generalizations of learned schemas, we can simply continue our matching process by adding them to the set of initially known schemas, alongside the protoschemas. If they are retrieved as candidates and receive high match scores for another story, shared details of each match can more certainly be incorporated into a general schema.
+
+For example, Figure~\ref{fig:rematch_1} is a ``first-order'' schema derived from a match of an eating protoschema with the sentence ``the cow ate the grass''. When matched to the similar sentence ``the dog ate the grass'', we derive the ``second-order'' schema in Figure~\ref{fig:rematch_2}. Note that \texttt{DOG.N} and \texttt{COW.N} have been automatically generalized, via the WordNet hypernym hierarchy, to \texttt{PLACENTAL.N}. The former two constraints remain in the schema, albeit at a lower \textit{certainty} score of $1/2$ each. The latter general constraint has a higher certainty of $2/2$. These correspond to the frequency of observance in all stories that have contributed to the learned schema.
+
+\subsection{Learning Composite Schemas}
+If schemas could only be learned by progressively refining existing protoschemas, schemas would mostly be single-step actions. Some of those, like ``monkey eats banana'', would still be valuable world knowledge, but many situations would not be learnable. Our schemas can have multiple steps, however, and even nest other schemas within them as steps; we would like to be able to learn schemas that make use of that complexity.
+
+\textit{``First-order''} schemas---that is, refinements of our starting protoschemas---can be strung together into composite schemas in multiple ways. If a schema B has a pre-condition that unifies with one of schema A's post-conditions, and schema A's episode is temporally before schema B's, the two can be ``chained'' together; these chains can be further extended by other simple schemas. This chaining process was how the system learned the schema in Figure~\ref{fig:eg_schema}. Goals may also be unified with post-conditions to establish chains.
+
+\subsection{Prediction}
+Prediction is relatively straightforward: Given a story, such as the one in Figure~\ref{fig:predictions}, we try to identify a similar schema, such as the learned schema in Figure~\ref{fig:eg_schema}, and match as many formulas as we can to it. After we've substituted story entities for variables, we may fill in other formulas in the schema. Schema formulas whose variables have all been filled in, but are not present in the story, are predictions: we guess that the schema underlies the observed events, and infer the rest of the situation from what we know.
+
+\begin{figure}[htbp]
+    \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+(EPI-SCHEMA ((?X_D EAT.379.V ?X_C)
+                ** ?X_E)
+	:ROLES
+		!R1 (?X_D AGENT.N)
+		!R2 (?X_C FOOD.N)
+		!R3 (?X_C GRASS.N)
+		!R4 (?X_D COW.N)
+	:GOALS
+		?G1 (?X_D (WANT.V (THAT (NOT
+		    (?X_D HUNGRY.A)))))
+	:PRECONDS
+		?I1 (?X_D HAVE.V ?X_C)
+		?I2 (?X_D HUNGRY.A)
+	:POSTCONDS
+		?P1 (NOT (?X_D (HAVE.V ?X_C)))
+		?P2 (NOT (?X_D HUNGRY.A))
+	:EPISODE-RELATIONS
+		!W1 (?P1 AFTER ?X_E)
+		!W2 (?I1 BEFORE ?X_E)
+	:NECESSITIES
+		!N1 (!R1 NECESSARY-TO-DEGREE 1.0)
+)
+)\end{lstlisting}
+    \caption{A schema learned by applying the eating protoschema to the sentence ``the cow ate the grass''.}
+    \label{fig:rematch_1}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+(EPI-SCHEMA ((?X_D EAT.7.V ?X_C)**?X_E)
+	:ROLES
+		!R1 (?X_D AGENT.N)
+		!R2 (?X_C FOOD.N)
+		!R3 (?X_D COW.N)
+		!R6 (?X_C GRASS.N)
+		!R7 (?X_D DOG.N)
+		!R8 (?X_D PLACENTAL.N)
+	:GOALS
+		?G1 (?X_D (WANT.V (THAT (NOT
+		        (?X_D HUNGRY.A)))))
+	:PRECONDS
+		?I1 (?X_D HAVE.V ?X_C)
+		?I2 (?X_D HUNGRY.A)
+	:POSTCONDS
+		?P1 (NOT (?X_D (HAVE.V ?X_C)))
+		?P2 (NOT (?X_D HUNGRY.A))
+	:EPISODE-RELATIONS
+		!W1 (?P1 AFTER ?X_E)
+		!W2 (?I1 BEFORE ?X_E)
+	:CERTAINTIES
+		!C1 (!R8 CERTAIN-TO-DEGREE (/ 2 2))
+		!C2 (!R3 CERTAIN-TO-DEGREE (/ 1 2))
+		!C3 (!R7 CERTAIN-TO-DEGREE (/ 1 2))
+	:NECESSITIES
+		!N1 (!R1 NECESSARY-TO-DEGREE 1.0)
+)
+)\end{lstlisting}
+    \caption{A more general schema learned by applying the learned schema in Figure~\ref{fig:rematch_1} to the sentence ``the dog ate the grass''.}
+    \label{fig:rematch_2}
+\end{figure}
+
+\begin{algorithm}
+\caption{Basic algorithm for matching a story to a schema}
+\label{alg:matching}
+\begin{algorithmic}
+\STATE INPUT: set of story EL formulas $STORY$, a candidate schema $SCH$, number of shuffles $SHUF$
+\STATE OUTPUT: best schema $match$
+\STATE $match \gets null$
+\FOR{i from 0 to $SHUF$}
+    \STATE $STORY \gets shuffle(STORY)$
+    \FOR{$\phi$ in $STORY$}
+        \FOR{$\psi$ in $SCH$}
+            \IF{$\phi$ and $\psi$ unify with variable bindings $B$}
+                \STATE $SCH \gets SCH$ with all bindings in $B$ applied
+            \ENDIF
+        \ENDFOR
+    \ENDFOR
+    \IF{$score(SCH) > score(match)$}
+        \STATE $match \gets SCH$
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[htbp]
+        \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+The monkey can climb a tree.
+He climbs the tree and gets a cocoanut.
+He drops the cocoanut to the ground.
+He comes down and eats it.\end{lstlisting}
+    \caption{An example of a children's story used as input to our system for schema learning.}
+    \label{fig:story}
+\end{figure}
+
+\begin{figure}[htbp]
+        \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+(TREE28.SK TREE.N)
+(MONKEY27.SK MONKEY.N)
+((MONKEY27.SK((CAN.MD CLIMB.V)
+    TREE28.SK))**E26.SK)
+((MONKEY27.SK (CLIMB.V TREE28.SK))
+    ** E34.SK)
+((MONKEY27.SK (GET.V COCOANUT32.SK))
+    ** E33.SK)
+(COCOANUT32.SK COCOANUT.N)
+(TREE28.SK TREE.N)
+(GROUND39.SK GROUND.N)
+((MONKEY27.SK (DROP.V COCOANUT32.SK))
+    ** E40.SK)
+(COCOANUT32.SK COCOANUT.N)
+((MONKEY27.SK (EAT.V COCOANUT32.SK))
+    ** E44.SK)\end{lstlisting}
+    \caption{The story in Figure~\ref{fig:story} parsed into Episodic Logic}
+    \label{fig:story_parse}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+(EPI-SCHEMA((?X TRAVEL.V
+    (FROM.P-ARG ?L1) ?L2)**?E)
+  :ROLES
+    !R1 (?X AGENT.N)
+    !R2 (?L1 LOCATION.N)
+    !R3 (?L2 LOCATION.N)
+  :GOALS
+    ?G1 (?X (WANT.V
+               (KA ((ADV-A (AT.P ?L2))
+                BE.V))))
+  :PRECONDS
+    ?I1 (?X (AT.P ?L1))
+    ?I2 (NOT (?X (AT.P ?L2)))
+  :POSTCONDS
+    ?P1 (NOT (?X (AT.P ?L1)))
+    ?P2 (?X (AT.P ?L2))
+  :NECESSITIES
+    !N1 (!R1 NECESSARY-TO-DEGREE 1.0)
+)\end{lstlisting}
+    \caption{An example of a \textit{protoschema}: a general schema used to ``bootstrap'' the system and generate more specific schemas.}
+    \label{fig:protoschema}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+(EPI-SCHEMA ((?X_B CLIMB.481.V
+                (FROM.P-ARG ?L1) ?X_C)
+                    ** ?X_E)
+  :ROLES
+    !R1 (?X_B AGENT.N)
+    !R2 (?L1 LOCATION.N)
+    !R3 (?X_C LOCATION.N)
+    !R4 (?X_C TREE.N)
+    !R5 (?X_B MONKEY.N)
+  :GOALS
+    ?G1 (?X_B (WANT.V
+                (KA ((ADV-A
+                (AT.P ?X_C)) BE.V))))
+  :PRECONDS
+    ?I1 (?X_B (AT.P ?L1))
+    ?I2 (NOT (?X_B (AT.P ?X_C)))
+  :POSTCONDS
+    ?P1 (NOT (?X_B (AT.P ?L1)))
+    ?P2 (?X_B (AT.P ?X_C))
+  :NECESSITIES
+    !N1 (!R1 NECESSARY-TO-DEGREE 1.0)
+)\end{lstlisting}
+    \caption{A schema match of the story in Figure~\ref{fig:story} to the protoschema in Figure~\ref{fig:protoschema}}
+    \label{fig:schema_match}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas]
+(EPI-SCHEMA ((?X_B CLIMB_GET_EAT.PR
+                ?X_A ?X_C) ** ?E)
+  :ROLES
+    !R1 (?X_A TREE.N)
+    !R2 (?X_C INANIMATE_OBJECT.N)
+    !R3 (?X_B MONKEY.N)
+    !R4 (?X_C FOOD.N)
+    !R5 (?X_C COCOANUT.N)
+  :STEPS
+    ?E1 (?X_B CLIMB.481.V
+            (FROM.P-ARG ?L1) ?X_A)
+    ?E2 (?X_B GET.511.V ?X_C
+            (AT.P-ARG ?X_A))
+    ?E3 (?X_B EAT.541.V ?X_C)
+  :EPISODE-RELATIONS
+    !W1 (?E1 BEFORE ?E2)
+    !W2 (?E2 BEFORE ?E3)
+    !W3 (?E1 DURING ?E)
+    !W4 (?E2 DURING ?E)
+    !W5 (?E3 DURING ?E)
+)\end{lstlisting}
+    \caption{An example of a multi-step schema learned by our system from protoschema matches to the story in Figure~\ref{fig:story}}
+    \label{fig:eg_schema}
+\end{figure}
+
+\lstdefinestyle{Schemas2}{
+morekeywords={prediction},
+basicstyle=\ttfamily\footnotesize\bfseries,
+stringstyle=\ttfamily\color{stringcolor},
+commentstyle=\ttfamily\color{commentcolor},
+keywordstyle=\ttfamily\color{stringcolor},
+identifierstyle=\texttt,
+tabsize=2
+}
+
+\begin{figure}[htbp]
+    \begin{lstlisting}[frame=single,numbers=left,numberstyle=\tiny,xleftmargin=1.5em,style=Schemas2]
+The cocoanut tree is tall.
+It is very pretty.
+Many cocoanuts grow on the tree.
+Simeon can climb the tree.
+prediction:
+   (SIMEON.NAME MONKEY.N)
+prediction:
+   (TREE1604.SK ((NN COCOANUT.N) TREE.N))
+prediction:
+    (SIMEON.NAME CLIMB.481.V TREE1604.SK)
+He gets the cocoanuts for his mother.
+prediction:
+    (SIMEON.NAME EAT.541.V COCOANUT1626.SK)
+His mother likes cocoanuts.
+She likes to play with Simeon.\end{lstlisting}
+    \caption{Another children's story, interspersed with predictions made by matching its parse to the learned schema in Figure~\ref{fig:eg_schema}}
+    \label{fig:predictions}
+\end{figure}
+\fi

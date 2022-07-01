@@ -1,0 +1,17 @@
+% Feb 24, 2010 vandurme> the graduate office wanted a "ii" on the top right
+% corner of the dedication page (lowercase Roman numeral page numbering), which
+% explains the slightly messy tex code for this page:
+
+%%%dedication page
+\thispagestyle{empty}
+%\thispagestyle{plain}
+\newenvironment{dedication}
+{\cleardoublepage \thispagestyle{empty} \vspace*{\stretch{1}}
+  \begin{center} \em}
+  {\end{center} \vspace*{\stretch{3}} }
+
+\begin{dedication}
+
+   To be(ing) determined
+
+\end{dedication}

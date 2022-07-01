@@ -1,0 +1,75 @@
+\section{Episodic Logic (EL)}
+\label{sec:el}
+
+Before we define Episodic Logic, we should motivate its use for schemas: why do we use EL instead of more ``battle-hardened'' existing logical formalisms? First-order logic (FOL)---used for planning and knowledge representation by the STRIPS planning system \citep{fikes1972}, GENESIS \citep{mooney90}, and many other classical AI systems---would be a natural first choice: its syntax and semantics are simple and known by academics and practitioners alike. However, FOL is an \textit{extensional} logic by nature, and as such does not allow for modal statements such as ``I know that Gaurav loves Mariel''---the proposition ``Gaurav loves Mariel'' only denotes a truth value, and such a sentence would always be equivalent to ``I know that \texttt{TRUE}'' or ``I know that \texttt{FALSE}'', depending on whether Gaurav loves Mariel or not in that world.\footnote{I like to think that he does.}
+
+Additionally, very important to the notion of schemas is the notion of an \textit{episode}, a.k.a. a situation, a.k.a. an event. Schemas are stereotyped patterns of situations, and so a representation of situations is necessary. FOL has traditionally tackled this with Davidsonian \textit{events} \citep{Davidson1967}, where the event is a first-class domain entity passed as an extra argument to situational predicates. As we'll see below, this approach is actually quite similar to how Episodic Logic handles events, except that Davidsonian event variables can only be passed to positive, atomic predication literals; Episodic Logic's semantics allow arbitrarily complex formulas to hold in certain events.
+% This has only been a sketchy outline of a few key differences between FOL and EL; for a more thorough comparison, please refer to \citep{schubert2000episodic}.
+
+\subsection{What is EL?}
+EL is a predicate logic whose semantics are intended to model some important aspects of natural language, and of the human thought patterns that give rise to natural language. As its name implies, one of EL's most distinctive features is its use of \textit{episode} variables to denote time-bounded ``temporal'' propositions, such as ``Palutena is sleepy'' or ``I'll go running for an hour''---as well as ``atemporal'' propositions, which necessarily hold true eternally, like ``hydrogen is an element'' or $2+3=5$.
+
+EL naturally supports other aspects of natural language as well. It is an \textit{intensional} logic: a sentence like ``Gaurav loves Mariel'' can represented as not just a truth value, but as a function from possible situations to truth values called a \textit{sentence intension}. Sentence intensions may be transmuted into individuals using \textit{reification} operator \texttt{That}, and predicates may be similarly reified into individuals with the kind-forming operator \texttt{K}\footnote{Or \texttt{Ke} for forming kinds of events, or \texttt{Ka} for forming kinds of actions.}; this allows abstract entities, such as \textit{``the process of writing a dissertation''}, as well as concrete entities, such as \textit{``Lane's dissertation''}, to act as predicate arguments without defining special semantics for higher-order predicates (that is, predicates with predicate arguments).
+
+EL's episodes are associated with EL formulas primarily via the \textit{characterizing} operator \texttt{**}. Intuitively, the EL form of sentence like ``I am writing my dissertation'' \textit{characterizes} an episode \texttt{e}, then \texttt{e} is an ``episode \textit{of}'' me writing my dissertation. This is contrasted with the operator \texttt{*}; while \el{[$\phi$ ** e]} means that \el{e} is an episode \textit{of} \el{$\phi$}, \el{[$\phi$ * e]} only asserts that \el{$\phi$} is \textit{true in} \el{e}. While it is always true that \el{[$\phi$ ** e]} $\implies$ \el{[$\phi$ * e]}, the converse is not necessarily true: the sun setting could be true in an episode \textit{of} me writing my dissertation, but that does not also make it an episode \textit{of} the sun setting.
+
+
+
+\subsection{Explanation of an example}
+As EL is intended as a representation for natural language, we often make use of primarily lexical predicates, which represent verbs, nouns, adjectives, and other words. The nature of these lexical predicates, and the rough capabilities of EL's semantics to relate them, may be best presented---for our purposes---by the explanation of some illustrative examples. Let's first look at an English sentence and its EL form, and then note its meaning and various features---as well as some features of EL that may not be covered in the example.
+
+%\textbf{English}: \textit{Rivka insisted that she had eaten food.}
+
+%\textbf{EL}: \el{\footnotesize [$\exists$ e1 : [e1 before Now] [|Rivka| insist.v (That ($\exists$ e2 : [e2 before e1] [(|Rivka| eat.v (K food.n)) ** e2])])] ** e1]}
+
+\textbf{English}: \textit{Rivka insisted that she didn't eat chametz.}
+
+\textbf{EL}:  \el{[E1.sk before Now0],
+     [[|Rivka| insist.v
+       (that
+        (some e2 [e2 at-or-before E1.sk]
+              [(not [|Rivka| eat.v (K chametz.n)]) ** e2]))]
+      ** E1.sk)}
+
+
+
+%\subsubsection{Clarifications}
+%The EL here might be a bit hard to read, so I'll clarify it a bit with a ``translation'' of it back into English: \textit{``Some time e1 before now is characterized by Rivka insisting that Rivka eating food characterizes some time e2 before e1.''}
+
+\subsubsection{Restricted quantification}
+The existential quantifications of \el{e1} and \el{e2}\footnote{E1.sk is a Skolem constant---it has been assigned a name to remove the top-level existential quantification.} illustrate the ``restrictor-matrix'' structure of EL quantification: if \el{x} is a variable, \el{Q} is a quantifier, and $\phi$ and $\psi$ are arbitrary EL formulas, the quantification formula \el{[Q x : $\phi$ $\psi$]} predicates the truth of the ``restrictor'' formula $\phi$ whenever the ``matrix'' formula $\psi$ holds true. When \el{Q} is $\exists$, this is equivalent to the unrestricted quantification \el{[$\exists$ x ($\phi \land \psi$)]}; similarly, when \el{Q} is $\forall$, it is equivalent to \el{[$\forall$ x ($\phi \rightarrow \psi$)]}. The restrictor-matrix form is only necessary for some of EL's nonstandard quantifiers, e.g. \el{Many} and \el{Few}, which cannot be reduced to an unrestricted form.
+
+\subsubsection{Temporal relations}
+The temporal relation \el{before} is used to relate the time of \el{E1.sk} to the special time constant \el{Now0}---which represents the time that the speaker is uttering this---and the time of \el{e2} to \el{E1.sk}, and thus also \el{e2} to \el{Now}. Such temporal relations---as well as the tacit temporal relations in their transitive closures---place the episode times within the ontological domain $\mathcal{R}_{4}$, representing spacetime, and connect their trajectories (see Figure~\ref{fig:el_ontology}). More temporal relations exist, special functions \el{start-of(e)} and \el{end-of(e)} allow temporal predications about the instantaneous endpoints of episodes, and disjoint intervals may even form an episode; for more information on the temporal semantics of EL, please refer to \citep{hwang1993}.
+
+\subsubsection{Representing sentences}
+``Sentences'' in EL are often verb predications: the heart of this one is the 2-place predicate \el{insist.v}, with \el{|Rivka|} as the first argument, and a \el{That}-reified sentence as the second. This syntax is just a ``pretty'' version that reflects the subject-verb-object nature of the English language; semantically, it would be more honest to write the predication out with the arguments all postfixed, but nobody wants to see that.
+
+\subsubsection{Reification and \textit{kind}-forming}
+The kind-forming operator \el{K} is used here because \el{chametz.n} is a one-place predicate that determines whether its argument is is chametz\footnote{Food containing leaven; prohibited during Pesach, a.k.a. Passover.}. So, because we don't know the specific chametz individual, we choose to make a statement about her eating a \text{kind of chametz}, which we accomplish by \textit{reifying} the \el{chametz.n} predicate, rather than \textit{Skolemizing} a variable (i.e. assigning it a concrete name, to bypass existential quantification) and attaching the predicate to it (i.e. assigning it a name).
+\footnote{Well, it actually provides a function from possible situations to whether its argument is food in each of those situations, but I've omitted this detail for clarity \textit{supra}, preferring instead this footnote: an intentional extensional intension extension.}
+In order to use a predicate as an argument to another predicate, we must first reify it as an individual.
+
+We can reify other sorts of things, too. The reified verb phrase \el{(Ka (drink.v (K water.n)))}
+\footnote{What's being reified is actually not a well-formed EL predication, assuming \el{drink.v} is a 2-place predicate; the actor argument is missing! What's \textit{actually} being reified here, implicitly using the \el{K} operator, is something like the \textit{lambda abstraction} \el{($\lambda$a (a drink.v (K water.n)))}; however, even that's not quite right, as there are additional complications related to event characterization. For a full discussion of this, see page 7 of \citep{schubert2000episodic}.}
+is the \textit{kind of action} of drinking water, and belongs to the class $\mathcal{K}_{A}$ in the EL ontology (see Figure~\ref{fig:el_ontology}). 
+
+The reified sentence \el{(Ke (|Mary| drink.v (K water.n)))} is the \textit{kind of event} where Mary drinks water, and belongs to the ontological class $\mathcal{K}_{E}$. This is semantically distinct from the other reification of this sentence, which uses the \el{That} operator, \el{(That (|Mary| drink.v (K water.n)))}, which is a \textit{proposition}, and thus belongs to the ontological class $\mathcal{P}$. An intuition for their semantic distinction is quite easy to obtain from the names of their operators: ``the kind of event of Mary drinking water'' is obviously different from ``that Mary is drinking water''.
+
+\subsubsection{The \el{**} and \el{*} operators}
+\el{**} and \el{*} are \textit{modal} operators: statements like \el{[$\phi$ ** e]} and \el{[$\psi$ * e]} may not, in general, have their formula arguments, $\phi$ and $\psi$, replaced with other formulas that seem to have the same truth value. So, the EL formula \el{((|Andre| sleep.v) * e)} does \textit{not} entail \el{(((|Andre| sleep.v) $\land$ ( (|Fido| bark.v) $\lor$ $\neg$ (|Fido| bark.v) )) * e)}, even though it would seem to have the same truth value; in fact, the entity \el{|Fido|} might not have any role in the episode, and so even tautological statements involving it may have no binary truth value in \el{e}.
+
+\subsubsection{Characterization by a negative}
+Unlike Davidsonian events, EL episodes can be characterized by arbitrarily complex EL formulas, including negatives. Here, \el{e2} is an episode of Rivka \textit{not} eating.
+
+\subsection{Discussion}
+I'll leave aside any further description of EL's features or formal semantics, as I think the analysis above has demonstrated what I intended it to: that Episodic Logic is an expressive language with rich, event-oriented semantics. In the sections to come, it will become clearer how these semantics naturally support schema-based reasoning. However, it is worth mentioning that EL is not only expressive, but that EL \textit{inference} is \textit{tractable}; it might seem that ``the richer the model, the longer it stalls'', but EPILOG, the main implementation of EL inference, has comparable performance to FOL inference systems on some standard theorem proving tasks \citep{morbini2009evaluation}. Although EPILOG is somewhat slower than state-of-the-art FOL engines on theorem proving tasks, it also provides more powerful inference rules, and can compute certain sorts of inferences whose FOL equivalents would take time to be translated before inference could even begin.
+
+Additionally, EL is much closer to the ``surface form'' of natural English text than FOL, owing to its intensional predicates, flexible quantifiers, and other features. This surface similarity to natural language is quite beneficial for the task of parsing natural language text into EL. EL also has an ``underspecified'' form, which lacks certain features of EL---e.g. quantifier scoping, and the conversion of grammatical information, like tense, into temporal predications about episodes---but still represents the semantic type structure of a sentence. This form is called ``ULF'' (underspecified logical form) \citep{kim2019type}, and it is a practical, intermediate target form for the mass-parsing of text corpora that is still useful for many applications---such as simple schemas. In fact, using ULF for schemas may actually help convert ULF to full EL, by incorporating the knowledge represented by the schemas into the parsing pipeline. We explore the use of ULF, and EL, for schemas in later sections.
+
+\begin{figure}
+    \input{CH2_elschemas/el_ontology.tex}
+
+    \caption{This represents the EL ontology. I include only some brief definitions of the notable subsets; for more formal detail, please refer to \citep{schubert2000episodic}. \tiny{(I'd like to thank \href{https://www.mathcha.io}{mathcha.io} for making the construction of this TikZ figure so painless with their graphical editor.)}}
+    \label{fig:el_ontology}
+\end{figure}

@@ -1,0 +1,64 @@
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+
+\newcommand\LP{\texttt{(}}
+\newcommand\RP{\texttt{)}}
+\newcommand\SP{\hspace{0.2mm}}
+\newcommand\AZ{\texttt{[A-Z]}}
+
+\small
+\begin{tabular}{|L|}
+\hline\\
+{\setlength\tabcolsep{8pt}
+\begin{tabular}{L R L}
+%\begin{longtable}{L R L}
+\phi &\Coloneqq &\phi_{atom}\\
+&| &\texttt{(not}~\phi\texttt{)}\\
+&| &\texttt{(or}~\phi^{+}\texttt{)}\\
+&| &\texttt{(and}~\phi^{+}\texttt{)}\\
+&| &\texttt{(if}~\phi~\hspace{0.2mm}~\phi~\texttt{)}\\
+&&\\
+\phi_{atom} &\Coloneqq &\texttt{(}~I~\hspace{0.2mm}~P~\texttt{)}\\
+&| &\texttt{(}\phi~\texttt{**}~I\texttt{)}\\
+&| &\LP~M~\SP~\phi~\RP\\
+&| &\LP~I~\SP~P~\SP~I^{+}~\RP\\
+&&\\
+I_{lex} &\Coloneqq &[0-9]^{*}\\
+&| &\texttt{[A-Z]}^{*}.\texttt{SK}\\
+&| &\texttt{[A-Z]}^{*}.\texttt{PRO}\\
+&| &\texttt{[A-Z]}^{*}.\texttt{NAME}\\
+&| &?\texttt{[A-Z]}\\
+&&\\
+I &\Coloneqq &I_{lex}\\
+&| &\LP~\texttt{K}~\SP~P~\RP\\
+&| &\LP~\texttt{KA}~\SP~P~\RP\\
+&| &\LP~\texttt{KE}~\SP~\phi~\RP\\
+&| &\LP~\texttt{THAT}~\SP~\phi~\RP\\
+&| &\LP~\AZ.\texttt{F}~\SP~I^{+}~\RP\\
+&| &\LP~\texttt{[A-Z].DET}~\SP~P~\RP\\
+&| &\LP~\texttt{SET-OF}~\SP~I^{+}~\RP\\
+%\end{longtable}}
+\end{tabular}}
+{\setlength\tabcolsep{8pt}
+\begin{tabular}{L R L}
+%\begin{longtable}{L R L}
+P_{atom} &\Coloneqq &\AZ.\texttt{N}\\
+&| &\AZ.\texttt{V}\\
+&| &\AZ.\texttt{A}\\
+&| &\AZ.\texttt{P}\\
+&| &\LP~\lambda~\SP~\LP~\AZ~^{*}~\RP~\SP~\phi~\RP\\
+&| &\LP~\texttt{PASV}~\SP~\AZ.\texttt{V}~\RP\\
+&&\\
+P &\Coloneqq &P_{atom}\\
+&| &\LP~P~\SP~I^{+}~\RP\\
+&| &\LP~M~\SP~P~\RP\\
+&&\\
+M &\Coloneqq &\AZ.\texttt{ADV-[AEFS]}\\
+&| &\LP~\texttt{ADV-[AEFS]}~\SP~P~\RP\\
+&| &\LP~\texttt{ADV-[AEFS]}~\SP~M~\RP\\
+&| &\texttt{PLUR}\\
+\end{tabular}}\\
+\vspace{0.2mm}\\
+\hline
+\end{tabular}
+%\end{longtable}}

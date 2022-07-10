@@ -1,0 +1,186 @@
+\makeatletter
+\let\savedchap\@makechapterhead
+\def\@makechapterhead{\vspace*{-5cm}\savedchap}
+\chapter{An Example Schankian Script}
+\let\@makechapterhead\savedchap
+\makeatletter
+\label{appendix:egschankscript}
+
+\vspace*{-1cm}
+
+\lstset{language=Lisp,
+    keywords={MTRANS, PTRANS, ATRANS, to, CP, DO, MBUILD, ATTEND, MOVE, INGEST},
+    basicstyle=\ttfamily\footnotesize,
+    stringstyle=\ttfamily\color{darkgreen},
+    commentstyle=\ttfamily\color{darkgreen},
+    keywordstyle=\ttfamily\color{purple},
+    identifierstyle=\texttt,
+    tabsize=2,
+    aboveskip=0pt,
+    belowskip=0pt
+    }
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\begin{tabular*}{\textwidth}{c c c c}
+  \parbox{0.5\textwidth}{\begin{lstlisting}^^J
+   Script: RESTAURANT^^J
+   Track: \ Coffee Shop^^J
+   Props: \ Tables^^J
+\ \ \ \ \ \ \ \ Menu^^J
+\ \ \ \ \ \ \ \ F-Food^^J
+\ \ \ \ \ \ \ \ Check^^J
+\ \ \ \ \ \ \ \ Money^^J
+  \end{lstlisting}
+  } & \parbox{0.5\textwidth}{\begin{lstlisting}^^J
+   Roles: S-Customer^^J
+\ \ \ \ \ \ \ W-Waiter^^J
+\ \ \ \ \ \ \ C-Cook^^J
+\ \ \ \ \ \ \ M-Cashier^^J
+\ \ \ \ \ \ \ O-Owner^^J
+  \end{lstlisting}}
+ \end{tabular*}
+ 
+\par\noindent\rule{\textwidth}{0.4pt}
+\begin{tabular*}{\textwidth}{c c}
+\parbox{0.5\textwidth}{\begin{lstlisting}^^J
+   Entry conditions: S is hungry.^^J
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ S has money.^^J
+\end{lstlisting}} & \parbox{0.5\textwidth}{\begin{lstlisting}^^J
+   Results: S has less money^^J
+\ \ \ \ \ \ \ \ \ O has more money^^J
+\ \ \ \ \ \ \ \ \ S is not hungry^^J
+\ \ \ \ \ \ \ \ \ S is pleased (optional)^^J
+\end{lstlisting}}
+ \end{tabular*}
+ 
+\par\noindent\rule{\textwidth}{0.4pt}
+Scene 1: Entering
+\begin{lstlisting}
+S PTRANS S into restaurant
+S ATTEND eyes to tables
+S MBUILD where to sit
+S PTRANS S to table
+S MOVE S to sitting position
+\end{lstlisting}
+%\vspace{-1cm}
+\par\noindent\rule{\textwidth}{0.4pt}
+Scene 2: Ordering (see next page for diagram)
+\par\noindent\rule{\textwidth}{0.4pt}
+Scene 3: Eating
+\begin{lstlisting}
+C ATRANS F to W
+W ATRANS F to S
+S INGEST F
+\end{lstlisting}
+\vspace{0.5cm}
+
+
+(Optionally return to Scene 2 to order more; otherwise go to Scene 4)
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\vspace{0.5cm}
+Scene 4: Exiting
+\begin{lstlisting}
+                              (check not at table path):
+                              S MTRANS to W (W ATRANS check to S)
+                              (go to Scene 4 at check at table path)
+
+               (check at table path):
+               W MOVE (write check)
+               W PTRANS W to S
+               W ATRANS check to S
+               S ATRANS tip to W
+               S PTRANS S to M
+               S ATRANS money to M
+(no pay path): S PTRANS S to out of restaurant
+\end{lstlisting}
+\par\noindent\rule{\textwidth}{0.4pt}
+
+(relocated from previous page) Scene 2: Ordering \\
+
+\begin{tikzpicture}[node distance=0.3cm,>=stealth']
+\node[state,label={(menu on table)}] (A)
+{\begin{tabular}{l}
+  \parbox{5cm}{\begin{lstlisting}[frame=single]^^J
+   S PTRANS menu to S^^J
+  \end{lstlisting}
+  }
+ \end{tabular}};
+ \node[state, right = of A, xshift=2cm, label={(S asks for menu)}] (B)
+{\begin{tabular}{l}
+  \parbox{5.5cm}{\begin{lstlisting}[frame=single]^^J
+   S MTRANS signal to W^^J
+   W PTRANS W to table^^J
+   S MTRANS 'need menu' to W^^J
+   W PTRANS W to menu^^J
+  \end{lstlisting}
+  }
+ \end{tabular}};
+ 
+\node[state, below = of B, xshift=-2cm, label={[xshift=-1.5cm](W brings menu)}] (C)
+{\begin{tabular}{l}
+  \parbox{5cm}{\begin{lstlisting}[frame=single]^^J
+   W PTRANS W to table^^J
+   W ATRANS menu to S^^J
+  \end{lstlisting}
+  }
+ \end{tabular}};
+ 
+ \node[state, below = of C, xshift=-2cm, label={[yshift=-1cm]right:\textbf{\color{blue}{$\leftarrow$ Scene 2 MAINCON}}}] (D)
+{\begin{tabular}{l}
+  \parbox{6cm}{\begin{lstlisting}[frame=single]^^J
+   S MTRANS food list to CP(S)^^J
+   S MBUILD choice of F^^J
+   S MTRANS signal to W^^J
+   W PTRANS W to table^^J
+   S MTRANS I want F to W^^J
+   \end{lstlisting}
+   \begin{lstlisting}[frame=single, rulecolor=\color{blue}, framerule=3pt]^^J
+   S MTRANS I want F to W^^J
+   \end{lstlisting}
+  }
+ \end{tabular}};
+ 
+ \node[state, below = of D, xshift=2cm] (E)
+{\begin{tabular}{l}
+  \parbox{5.5cm}{\begin{lstlisting}[frame=single]^^J
+   W PTRANS W to C^^J
+   W MTRANS (ATRANS F) to C^^J
+  \end{lstlisting}
+  }
+ \end{tabular}};
+ 
+  \node[state, below = of E, xshift = -6cm] (F)
+{\begin{tabular}{l}
+  \parbox{6.5cm}{\begin{lstlisting}[frame=single]^^J
+   C MTRANS 'no F' to W^^J
+   W PTRANS W to S^^J
+   W MTRANS 'no F' to S^^J
+   (go back to *) or^^J
+   (go to Scene 4 at no pay path)^^J
+  \end{lstlisting}
+  }
+ \end{tabular}};
+ 
+   \node[state, below = of E, right = of F] (G)
+{\begin{tabular}{l}
+  \parbox{5cm}{\begin{lstlisting}[frame=single]^^J
+   C DO (prepare F script)^^J
+   to Scene 3^^J
+  \end{lstlisting}
+  }
+ \end{tabular}};
+
+\path
+(A) edge (D)
+(B) edge (C)
+(C) edge (D)
+(D) edge (E)
+(E) edge (F)
+(E) edge (G);
+
+\end{tikzpicture}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage

@@ -2,6 +2,9 @@
 
 \documentclass[11pt,leqno]{report}
 
+% citation style can be whatever is "accepted in your field"
+\usepackage[round]{natbib}
+
 \usepackage{ur_thesis}
 \usepackage{times}
 \usepackage{hyperref}
@@ -24,6 +27,9 @@
 \usetikzlibrary{arrows,automata}
 \usetikzlibrary{positioning}
 \usetikzlibrary{graphs}
+\usetikzlibrary{arrows,automata}
+\usetikzlibrary{positioning}
+\usetikzlibrary{graphs}
 %\usegdlibrary{trees}
 \usepackage{enumitem}
 \usepackage{svg}
@@ -38,6 +44,17 @@
 \usepackage{xspace}
 \usepackage{booktabs}
 
+\tikzset{
+    state/.style={
+           rectangle,
+           %rounded corners,
+           %draw=black, very thick,
+           %minimum height=2em,
+           inner sep=10pt,
+           text centered,
+           },
+}
+
 \newcommand\nesl{\texttt{NESL}}
 \newcommand\doubleplus{+\kern-1.3ex+\kern0.8ex}
 \newcommand\mdoubleplus{\ensuremath{\mathbin{+\mkern-10mu+}}}
@@ -48,11 +65,8 @@
 \newcommand{\sembleu}{\textsc{SemBLEU}\xspace}
 \newcommand{\smatch}{\textsc{Smatch}\xspace}
 
-\setcounter{secnumdepth}{4}
-\setcounter{tocdepth}{4}
-
-% citation style can be whatever is "accepted in your field"
-\usepackage[round]{natbib}
+%\setcounter{secnumdepth}{4}
+%\setcounter{tocdepth}{4}
 
 \begin{document}
 
@@ -107,13 +121,14 @@ tabsize=2
 
 \include{CH4_learning/CH4_main}
 
+\include{CH5_eval/CH5_main}
+
 %\include{conclusion}
 
 \bibliographystyle{plainnat}
 \bibliography{references}
 
-\appendix
-\chapter{More stuff}
+\include{appendices/appendices_main}
 
 
 \end{document}

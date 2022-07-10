@@ -1,0 +1,152 @@
+\section{Schank's Scripts}
+\label{sec:schank}
+
+\lstset{language=Lisp,
+    keywords={MTRANS, PTRANS, ATRANS, to, CP, DO, MBUILD, ATTEND, MOVE, INGEST},
+    basicstyle=\ttfamily\small,
+    stringstyle=\ttfamily\color{darkgreen},
+    commentstyle=\ttfamily\color{darkgreen},
+    keywordstyle=\ttfamily\color{purple},
+    identifierstyle=\texttt,
+    tabsize=2,
+    aboveskip=0pt,
+    belowskip=0pt
+    }
+
+One of the most influential theories of script-based language understanding is due to \citet{schankandabelson}. Inspired by the ``script theory'' of psychologist Silvan Tomkins \citep{tomkins1978script}, their book ``Scripts, Plans, Goals, and Knowledge Understanding'' makes scripts slightly more computationally concrete by extending Conceptual Dependency (CD) theory \citep{schank1969conceptual}---a theory of \textit{sentence} understanding based largely around breaking verbs into ``conceptual primitives''---into a more general theory of \textit{situation} understanding. To extend sentence understanding to situation understanding, the authors introduce the notion of a \textit{script}: a stereotyped, generalized template encapsulating and relating participants and sequential events.
+
+To illustrate the role of a script in less abstract terms: there is little mystery to the short story \textit{``Gaurav went to the French restaurant. He ordered coq au vin, and asked to be reseated.''} We have a good idea of why those actions happened, and of what happened in between: he was probably seated by a host, attended to by a waiter, asked by the waiter what food he wanted, knew the restaurant had French food, knew that only the staff could assign him to a different table, and many more obvious, but explicitly unstated, facts and events. The scripts that Schank and Abelson describe allow for this kind of situational knowledge retrieval.
+
+In this section, I will briefly introduce CD theory, with a focus on its conceptual primitives. Then, I will describe the types, properties, and uses of scripts as defined in the book, referring throughout to one of its example scripts, represented in Appendix~\ref{appendix:egschankscript}. I'll close the section with a brief discussion of my thoughts on script theory
+
+\iffalse
+\subsection{Conceptual Dependency (CD) Theory}
+
+Roger Schank's CD theory \citep{schank1975concdep} was an attempt to model sentence understanding in a way conducive to computation---that is, by creating a formal representation of sentences. Schank posited one essential ``axiom'' of CD theory: \textbf{any pair of sentences with the same meaning should have the same representation}. Although the sentences ``I sent her to the store'' and ``I sent our daughter to the grocery store'' may mean the same thing when uttered in a particular context, to represent the first sentence, all its implicit, contextual, and inferable information must be ``packaged up'' into the unique meaning representation of the utterance.
+
+Clearly, we cannot package up all inferences drawable from the sentence and the context: there are potentially infinite such inferences, and many may not be interesting. So, Schank further posits a standard set of inference rules, and a representation conducive to inference---this is, after all, all being done with computation in mind. So, Schank settles on a representational scheme with the following components:
+
+\begin{itemize}
+    \item \textbf{Primitives}: ``atomic'' representations of actions in the world. For example, the verbs ``buy'' and ``sell'' should be decomposable into the same primitive actions. In fact, Schank posits that \textit{all} verbs can be decomposed into only about 11 primitive actions.
+    \item \textbf{Active conceptualizations}: meaning propositions about actions undertaken by an actors, of the form \texttt{Actor Action Object Direction (Instrument)}.
+    \item \textbf{Stative conceptualizations}: meaning propositions about the states of objects in the world, of the form \texttt{Object (is in) State (with Value)}.
+\end{itemize}
+
+The primitive actions in the CD theory meaning representation are described below, in Section~\ref{sec:activeconc}.
+
+\subsubsection{Active conceptualizations}
+\label{sec:activeconc}
+\begin{itemize}
+    \item \texttt{\textbf{PTRANS}}: changing the physical location of an object. So, ``Jake goes to school'' becomes \texttt{Jake \textbf{PTRANS} Jake \textbf{to} school}.
+    
+    \item \texttt{\textbf{ATRANS}}: transferring possession of something to another actor. \citep{schankandabelson} actually generalizes this a bit to ``an abstract relationship such as possession, ownership, or control''. A buying action and a selling action are both characterized by the same two \texttt{\textbf{ATRANS}} actions: one of money, and the other of an object.
+    
+    \item \texttt{\textbf{MTRANS}}: communicating mental information to another actor. They also define \texttt{\textbf{CP}}, the conscious processor, and \texttt{\textbf{LTM}}, long term memory, to be used in \texttt{\textbf{MTRANS}} propositions. For example, ``tell'' is a person-to-person \texttt{\textbf{MTRANS}}, and ``remember'' is an \texttt{\textbf{LTM}}-to-\texttt{\textbf{CP}} \texttt{\textbf{MTRANS}} (i.e., your memory is communicating information to your conscious mind, as if both were actors).
+    
+    \item \texttt{\textbf{MBUILD}}: synthesizing new information from known information. ``Deduce'', ``imagine'', and ``decide'' are examples of \texttt{\textbf{MBUILD}}-characterized actions.
+    
+    \item \texttt{\textbf{ATTEND}}: focusing a sense organ on an environmental stimulus. \texttt{\textbf{ATTEND} eye} is ``see'', \texttt{\textbf{ATTEND} nose} is ``smell'', etc. This is often used as the \texttt{Instrument} argument of active conceptualizations characterized by \texttt{\textbf{MTRANS}}: so ``see'' is, more accurately, \texttt{\textbf{MTRANS} to \textbf{CP} by instrument of \textbf{ATTEND} eye to object}.
+    
+    \item \texttt{\textbf{GRASP}}: grasping an object for manipulation. The verb ``throw'' can be expressed as a \texttt{\textbf{GRASP}} followed by the end of a \texttt{\textbf{GRASP}}.
+    
+    \item \texttt{\textbf{PROPEL}}: exerting physical force on something. That thing need not necessarily move as a result. ``John threw the ball'' can be expressed as the end of a \texttt{\textbf{GRASP}}, followed by a \texttt{\textbf{PROPEL}}.
+    
+    \item \texttt{\textbf{MOVE}}: moving one's own body part. \texttt{\textbf{MOVE}} is often used as an instrument for other actions: so ``John threw the ball'' will also be ``by instrument of '' John \texttt{\textbf{MOVE}}-ing his arm. \texttt{\textbf{MOVE}} is also the non-instrumental characterizing primitive for verbs like ``kiss'' or ``scratch''.
+    
+    \item \texttt{\textbf{INGEST}}: taking an object inside of one's self, e.g. ``eat'', ``drink'', and ``breathe''. The exact set of orifices \texttt{\textbf{INGEST}} supports is both unclear in the literature and probably best left unexplored.
+    
+    \item \texttt{\textbf{EXPEL}}: excretion, secretion, or otherwise ejection of an object from the body. ``Sweat'', ``exhale'', ``cry'', and many other colorful examples are characterized by \texttt{\textbf{EXPEL}}.
+    
+    \item \texttt{\textbf{SPEAK}}: producing a sound, not necessarily directly through one's own bodily apparatus, and, unlike \texttt{\textbf{MTRANS}}, not necessarily for the communication of a coherent piece of information. ``Squeal'', ``play music'', and ``purr'' all involve \texttt{\textbf{SPEAK}}.
+\end{itemize}
+
+The creative composition of this sort of primitive action to represent more complex actions was not a revolutionary idea to AI researchers at th time: as I detail in Section~\ref{sec:genesis}, the STRIPS system's \citep{fikes1972} ``macro-operations'' were hugely influential in the planning literature---no doubt including this book---due to the simplicity and power of the situation models and planning algorithms they facilitate.
+
+\subsubsection{Stative conceptualizations}
+Primitive actions form the basis for active conceptualizations (\texttt{\textbf{ACT}}s). Stative conceptualizations (\texttt{\textbf{STATE}}s), on the other hand, can be thought of as attribute-value pairs. Some states are qualitative, e.g. ``the sky is blue''. However, some are quantitative, and so Schank suggested a normalized \textit{scale}, from -10 to 10, for such attributes, such as \texttt{\textbf{HEALTH}} (-10: dead, diseased, under the weather, tolerable, 10: ``in the pink'' \footnote{I actually had to look this phrase up, which may date this research.}), \texttt{\textbf{AWARENESS}} (-10: dead, unconscious, asleep, awake, 10: keen) \footnote{-10 seems to be ``dead'' for an awful lot of the quantities Schank suggests.}, and more; Schank does not provide a definitive list of ``primitive quantities''.
+
+\subsection{Causal chains}
+In chapter 2 of the book, the authors introduce \textit{causal chains}, wherein a set of uniquely identifiable CD theory conceptualizations---both active and stative---are related. Put more simply: causal chains relate actions to the states they effect, the states that bring them about, and other actions.
+
+They define the following set of causal relations:
+
+\begin{itemize}
+    \item $\Uparrow_{r}$: an \texttt{\textbf{ACT}} \textit{results in} a \texttt{\textbf{STATE}}.
+    
+    \item $\Uparrow_{E}$: a \texttt{\textbf{STATE}} \textit{enables} an \texttt{\textbf{ACT}}.
+    
+    \item $\Uparrow_{I}$: a \texttt{\textbf{STATE}} or \texttt{\textbf{ACT}} \textit{initiates} a mental \texttt{\textbf{STATE}}.
+    
+    \item $\Uparrow_{R}$: a mental \texttt{\textbf{ACT}} \textit{is the reason for} a physical \texttt{\textbf{ACT}}.
+    
+    \item $\Uparrow_{dE}$: a \texttt{\textbf{STATE}} \textit{disables} an \texttt{\textbf{ACT}}.
+    
+    \item $\Uparrow_{rE}$: an \texttt{\textbf{ACT}} leads to a \texttt{\textbf{STATE}}, which then enables an \texttt{\textbf{ACT}}. \textit{(This is an abbreviation for a $\Uparrow_{r}$-to-$\Uparrow_{E}$ chain.)}
+    
+    \item $\Uparrow_{IR}$: an \texttt{\textbf{ACT}} or \texttt{\textbf{STATE}} initiates some mental state, which is then the reason for an \texttt{\textbf{ACT}}. \textit{(This is an abbreviation for a $\Uparrow_{I}$-to-$\Uparrow_{R}$ chain.)}
+\end{itemize}
+
+So, ``John gave Bill an orange for his cold'' can be expressed as the causal chain \texttt{Bill \textbf{HEALTH}(POS \footnote{Here, \texttt{POS} indicates a positive change in quantity.} change) $\Rightarrow_{r}$ Bill \textbf{INGEST} orange \textbf{to INSIDE}(Bill) $\Rightarrow_{rE}$ John \textbf{ATRANS} orange \textbf{to} Bill} \footnote{Here, I've rotated the arrows 90\degree\ for formatting reasons.}.
+
+\textit{N.B.: The relation arrows in the causal chain above seem to point in the ``wrong'' direction. I have preserved their direction in this example, which was originally given in \citep{schankandabelson}.}
+
+Causal chains provide the first level of inter-sentential connection necessary to achieve situational understanding. But stories, and even observations in the world, frequently omit steps in causal chains. Some events also contain multiple causal chains, as they do not necessarily have one end goal: going to a restaurant for a date may have the goals of impressing a potential romantic partner \textit{and} eating some delicious food, but we nevertheless have certain stereotyped expectations about what may occur: one person may pull a chair out from the table for the other, one person will likely pay for all of the food, etc. So, we need an event representation richer than causal chains, not only to practically understand sparse stories, but also to model complex situation types.
+\fi
+
+\subsection{Scripts}
+We come now to \textit{scripts}, the core of the book. A script describes an entire situation: sequences of events, their causal relations, and sets of involved actors, objects, locations, and other entities falling under the purview of CD theory. Befitting their name, this book's ``scripts'' have many similarities with play scripts, i.e. screenplays: both representations are divided into ``scenes''; both ``set the stage'', so to speak, by introducing actors, sets, and notable objects in each scene; and both describe a sequence of actions (for screenplays, mostly speech actions). However, they differ from screenplays in an important way: scripts in the Schank and Abelson sense model generalized, ``stereotyped'' event sequences that fit many actual situations in the world, for example ``eating at a restaurant'' or ``graduating college''. The specific actors, objects, and locations are not fixed in this representation, but may be filled in on the basis of actual observed events. In this way, scripts are useful for explaining, and making predictions about, \textit{arbitrary} stories and observations.
+
+\subsubsection{Script structure}
+
+Scripts have a kind of dual structure: they have named slots, filled with values, %\footnote{These structures are quite similar to Minsky's frames, which are described in Section~\ref{sec:minsky}.},
+and they have temporal action sequences describing an overall situation's procession. The named slots hold values of the types supported by CD theory: they may have \textit{actors}, which are animate objects capable of performing active conceptualizations; \textit{props}, which are physical objects; and locations. The event sequences are divided into \textit{scenes}: for example, their book's canonical ``restaurant'' script, which I've illustrated in Appendix~\ref{appendix:egschankscript}, has scenes for entering, ordering, eating, and exiting.
+
+Every scene has a \textit{MAINCON} (``main conceptualization''). Any instantiation of a scene implies that its MAINCON certainly happened. In the example script in Appendix~\ref{appendix:egschankscript}, for example, the MAINCON of Scene 2 (``Ordering'') is \lstinline{S MTRANS `I want F' to W}, that is, the customer telling the waiter that they want food.
+
+Scripts may have \textit{entry conditions}: in the restaurant example, the customer must be hungry and have money for the script to be instantiated. They also may have \textit{results}, that is, ``postcondition'' stative conceptualizations attributed to the entire script. Finally, scripts may express complex control flows by specifying multiple entry points, branches, and loops within and between their scenes. In the restaurant example, Scene 2 has three labeled \textit{paths}, which alter the ``execution'' of the script depending on whether the menu is already at the table upon sitting down, and Scene 2 may go to a path in Scene 4 or a path in Scene 3 depending on whether the cook is able to make the requested food.
+
+Finally, scripts may have \textit{tracks}: conceptual specifications of the script type. They can also be thought of as ``subclasses'', in the object-oriented programming sense. For example, the restaurant script they present is on the ``coffee shop'' track, but restaurant scripts would also need tracks, they say, for pubs, diners, and all other sorts of restaurant.
+
+\subsubsection{Script retrieval}
+A true story understanding system would possess an immense number of scripts, and so we'll need a sophisticated retrieval system to find the scripts evoked by stories. We also need to be able to ``match'' the stories with the retrieved scripts, both to confirm that we've retrieved an appropriate script and to facilitate our ultimate goal of inference and understanding.% \footnote{This is also a problem for Minsky's frames, as I discuss in Section~\ref{sec:minsky}.}
+
+As both the story being understood \footnote{It is assumed here that some natural language text, or some set of observations, has already been converted into such a form.} and the atomic elements of scripts are ultimately composed of many conceptualizations, this script model makes use of some conceptualizations over others in retrieving scripts. We call these retrieval-oriented conceptualizations \textit{headers}, and they come in four forms:
+
+\begin{itemize}
+    \item \textbf{Precondition headers} are the conceptualizations in the script's ``entry conditions'' section. These allow us to recall scripts when their preconditions are true at some state.% \footnote{This is quite similar to how STRIPS and GENESIS identify relevant ``macrops''/schemas; see Section~\ref{sec:genesisapproach} for more information.}
+    
+    \item \textbf{Instrumental headers} are observed conceptualizations referring to more than one context. For example, \textit{``Gaurav took the bus to his office''} might evoke both the ``taking a bus'' and ``working at an office'' scripts. These facilitate the retrieval, instantiation, and causal relation of multiple scripts.
+    
+    \item \textbf{Locale headers} evoke scripts characteristic of specific places. For example, \textit{``Mariel went to the soccer field''} might evoke the ``play soccer'' script.
+    
+    \item \textbf{Internal conceptualization headers} are conceptualizations that occur in any scene of the script. Observing many actions in a script should probably evoke that script. One of these headers would likely yield a ``weaker match'' on its own than one of the other three types.
+\end{itemize}
+
+
+\subsubsection{Script interaction}
+
+Scripts are not self-contained: many scripts can be instantiated at the same time, and may co-refer to actors, props, locations, and even the same actions. Scripts may also interfere with one another: the authors give the example story \textit{``John was eating in a dining car. The train stopped short. The soup spilled.''}. Imagine that the first sentence is part of a restaurant script, and the second is part of a train script. Even if we infer that the stopping-short event from the train script caused the soup spilling event, we still need to ``tell'' the restaurant that it cannot proceed normally. To identify which scripts need to be informed of which events, we can make use of existing knowledge (soup is a food, and can thus evoke our instance of the restaurant script), co-reference (we might know of an existing soup in the restaurant script instance), and future inputs (if John then exclaims something to the waiter about soup, it facilitates a co-reference interaction). The authors explore many types and specific examples of script interaction, all of which boil down to the essential issues of determining when (or whether) certain script instances begin or end---this is especially an issue when scripts can be interrupted---and ambiguous matching of conceptualizations into one of multiple active script instances. Complete solutions to these fundamental issues are not engineered in the book; it would be largely up to an implementer of this system to solve them.
+
+\subsection{Discussion}
+This book presents one of the first serious attempts to lay out a framework for situation understanding based on generalized scripts. The scripts' underlying causal chains relate them naturally to plans, and the simplicity of the CD theory action/state representation lends itself to computational approaches. However, there are a few issues with the approach.
+
+The CD theory conceptualizations, especially the 11 primitive actions, are a cumbersome representation for many complex verbs, and the task of breaking natural vocabularies down into these primitives is likely intractable. What's more, the small set of specific primitives they propose is probably insufficient: \citet{lytinen1992conceptual} notes, twenty years after conceptual dependency theory was introduced \citep{schank1969conceptual}, that ``no one seems to take seriously the notion that such a small set of representational elements covers the conceptual base that underlies all natural languages.''
+
+Identifying the full set of ``tracks'' of scripts would also be quite difficult; even characterizing which entities---like location and type of food sold for a ``coffee shop'' vs. ``diner'' track---should be generalized to form new tracks is a difficult problem, and probably one not worth solving, as the notion of ``track'' should probably be generalized into a more flexible inheritance model.
+
+All in all, this book presents some very compelling ideas about the role of scripts in story understanding, but these fundamental aspects of the model seem to be intractable, even in the modern day, and must be addressed in future automated systems that learn structured scripts like these---which systems may well also reveal other intractable aspects of this framework.
+
+% Mention that they're related to plans/goals via causal chains, refer to STRIPS/GENESIS
+
+% Mention that CD theory conceptualizations aren't an expressive, formal substitute for language
+
+% Mention that identifying tracks explicitly would be difficult, and that it's not clear what conceptualizations could be automatically generalized
+
+% Mention that primitive actions fell out of vogue for action representation. Source for that:
+% https://deepblue.lib.umich.edu/bitstream/handle/2027.42/30278/0000679.pdf;jsessionid=FFD93BFFCFC6CE92599712702DF1951F?sequence=1
+
+% NOTES ON SCRIPT THEORY
+\iffalse
+"A script is a structure that describes appropriate sequences of events in a particular context." (p.41)
+"A script is made up of slots and requirements about what can fill those slots. The structure is an interconnected whole, and what is in one slot affects what can be in another. Scripts handle stylized everyday situations. They are not subject to much change, nor do they provide the apparatus for handling totally novel situations. Thus, a script is a predetermined, stereotyped sequence of actions that defines a well-known situation. Scripts allow for new references to objects within them just as if thee objects had been previously mentioned; objects within a script may take 'the' without explicit introduction because the script itself has already implicitly introduced them."
+\fi

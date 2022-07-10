@@ -1,0 +1,52 @@
+\section{FrameNet}
+\label{sec:framenet}
+
+The Berkeley FrameNet project \citep{framenet}, started in 1997 and continuously ongoing, aims to provide a comprehensive corpus of semantic frames that describe events, objects, and abstract relationships in the real world.
+%Their frames bear more resemblance to Minsky's frames (Section~\ref{sec:minsky})
+Their frames bear more resemblance to Minsky's frames
+than to Schank and Abelson's scripts (Section~\ref{sec:schank}), in that their representation does not center around temporal ordering of atomic actions, instead taking a hierarchical slot-and-filler structure to represent concepts at various levels of abstraction.
+
+This structural disparity can be seen as an artifact of the ``looseness'' of the FrameNet model: the semantics of FrameNet are dictated only by some relatively simple inheritance and composition relationships, with the actual, real-world ``meaning'' of frames and slots encoded only as natural language text descriptions. Whereas Schank and Abelson base the low-level semantics of their scripts in CD theory conceptualizations, and Minsky ``punts'' the semantic definition of his frames to actual implementers, the FrameNet project leaves the task to natural language understanding researchers, choosing to focus on \textit{demarcating}, rather than \textit{formally defining}, the core semantic roles of various stereotyped concepts. In this regard, FrameNet is something of a ``compromise''; by eschewing a formal, structured semantic representation of the natures of its roles, FrameNet sacrifices inferential and predictive capability for a simpler frame generation task, allowing for its immediate application to tasks such as semantic role labeling (see Section~\ref{sec:srl}).
+
+Today, the FrameNet corpus comprises 1224 frames \footnote{Frame count information taken from \url{https://framenet.icsi.berkeley.edu/fndrupal/current_status} at the time of writing.}---all of them hand-engineered---and they cover many topics: some example frame names are ``invasion scenario'', ``losing track of'', ``key'', ``hair configuration'', and ``change of leadership''.
+
+\subsection{FrameNet frames}
+Frames in FrameNet depend heavily on natural language to represent concepts. Every frame includes a description, in ordinary language, of the concept it represents. However, they do also provide some semantic structure: they demarcate, name, and informally define (i.e., using natural language) the actors, objects, and other conceptual entities necessary to understand the frame, in the form of \textbf{Frame Elements} (\textbf{FEs}). It also specifies a list of words that evoke the frame, which it calls \textbf{Lexical Units} (\textbf{LUs}). Finally, FrameNet has a set of \textbf{Relations} for composing and relating frames. These constructs are described below.
+
+\subsubsection{Frame Elements (FEs)}
+FEs are the ``slots'' of the frame: they represent the items, agents, and other frames that participate in the frame. For example, the \texttt{Firefighting} frame includes the FEs \texttt{Fire} and \texttt{Firefighters}. FEs may be constrained by \textbf{semantic types}: in the \texttt{Firefighting} frame, \texttt{Fire} has no semantic type specified, while \texttt{Firefighters} has the semantic type \texttt{Sentient}.
+
+Frames have two types of FEs: \textbf{Core FEs}, which essentially define the frame's meaning, and non-core FEs, which ``add information'' to the frame, but do not define its meaning. The Core FEs of the \texttt{Cooking\_creation} frame are \texttt{Cook} and \texttt{Produced\_food}, while its non-core FEs include \texttt{Container}, \texttt{Ingredients}, \texttt{Manner}, \texttt{Place}, and \texttt{Time}. (These latter three non-core FEs are extremely common in FrameNet frames; they apply to most events.)
+
+\subsubsection{Lexical Units (LUs)}
+LUs are words---specifically, lemmas with part-of-speech tags---that evoke frames. LUs are also sense-unambiguous: words with many possible senses, like ``run'' or ``play'', are split into multiple LUs (one for each sense). Each frame a list of the lexical units that evoke it. LUs for the \texttt{Cooking\_creation} frame include \texttt{bake.v}, \texttt{cooking.n}, and \texttt{roast.v}. LUs are only connected to the frame: FEs do not have associated LUs.
+
+\subsubsection{Relations}
+Frames may be related to one another in several important ways:
+
+\begin{itemize}
+\item Relations like \textbf{Causative\_of} and \textbf{Inchoative\_of} provide the means for causal connection of frames.
+
+\item The \textbf{Subframe} relation allows composition of frames into more complex scenarios. For example, the \texttt{Visiting\_scenario} frame has the subframes \texttt{Visiting\_scenario\_arrival}, \texttt{Visiting\_scenario\_stay}, and \texttt{Visiting\_scenario\_departing}. Subframes may be related with the \textbf{Precedes} relation to establish their chronology in larger scenarios.
+
+\item Inheritance relations allow more specific frames to build atop the FEs of more abstract frames, whose FEs are mapped into those of the more specific frame. For example, the \texttt{Vehicle\_landing} frame inherits from the \texttt{Arriving} frame.
+
+\item The \textbf{Perspectivized\_in} relation relates neutral-perspective frames, like \texttt{Employment\_scenario}, with frames that represent the same scenario from a different perspective, like \texttt{Employer\_scenario} and \texttt{Employee\_scenario}.
+
+\item The \textbf{Using} relation is like the inheritance relation, but ``less strictly defined'' \footnote{Source: \url{https://framenet.icsi.berkeley.edu/fndrupal/glossary}}. For example, the \texttt{Cooking\_creation} frame \textit{uses} the \texttt{Apply\_heat} frame, but does not inherit from it, as cooking something is not a ``kind of'' applying heat.
+
+\item The \textbf{See\_also} relation relates similar frames that are not quite semantically identical. For example, the \texttt{Awareness} frame notes to \textit{see also} the \texttt{Certainty} and \texttt{Opinion} frames.
+
+\end{itemize}
+
+\subsection{Applications}
+\label{sec:srl}
+FrameNet has seen extensive use since its inception, most notably for the task of semantic role labeling (SRL) in sentences, for which its Frame Elements are suited almost by definition. In fact, the very first attempt at automatic SRL, by \citet{gildea2002automatic}, used FrameNet as the source of its semantic roles. Following their discriminative model (of role-arguments-given-the-frame), work on identifying, and populating the roles of, frames evoked by text has continued, aided by modern learning technologies: \citet{thompson2003generative} extended the model to a generative model of both the evoked frame \textit{and} its arguments, \citet{giuglea2006semantic} did SRL with a support-vector machine model, and later systems like Open-SESAME \citep{opensesame} have used recurrent neural networks.
+
+FrameNet has been used for many ``downstream'' tasks, as well. \citet{rahman2011} applied knowledge extracted FrameNet, and the subject-predicate-object fact database YAGO \citep{yago}, to the task of co-reference resolution. \citet{shen2007using} used FrameNet for question answering by computing question-candidate answer similarity scores using both common semantic roles and mutual frame evocation as heuristics. \citet{framenetspatial} used the FrameNet model to represent spatial relations, harkening back to \citep{Minsky:1974:FRK:889222}, in which frames were first posited as a potential spatial scene representation.
+
+\subsection{Discussion}
+
+FrameNet is a practical system intended to support downstream natural language tasks. Though it encodes minimal formal structure, instead ``falling back'' to natural language descriptions of frames and roles, its real value has come from the generality of its frames, which cover many situations, and the usefulness of its semantic role definitions in the form of Frame Elements. However, FrameNet's frames are all manually generated, and its heavy reliance on natural language descriptions make automatic frame generation extremely difficult. So while FrameNet is certainly a valuable resource, and a monumental effort of manual schema engineering, it is unlikely to underlie any future system capable of full story understanding; its inherent scalability issues are simply insufficient to reliably model and relate the huge breadth of concepts needed to understand arbitrary stories.
+
+% For example, the concept of cooking typically involves a person doing the cooking (Cook), the food that is to be cooked (Food), something to hold the food while cooking (Container) and a source of heat (Heating_instrument). In the FrameNet project, this is represented as a frame called Apply_heat, and the Cook, Food, Heating_instrument and Container are called frame elements (FEs) 

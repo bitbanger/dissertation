@@ -4,19 +4,30 @@ Past approaches to statistical schema learning have largely represented schemas 
 
 Designed as a suitable representation of human-centric events, EL schemas can also specify preconditions, postconditions, arbitrary temporal relationships between steps, and the \textit{goals} of individual participants in the schema. All schema participants are represented as typed variables, all sharing a scope within the same schema, and formulas may include any number of variables as arguments. EL schemas also allow for recursive \textit{nesting}: a schema may be embedded as a step in another schema, and implicitly expanded to check constraints or generate inferences.
 
+Our schema representation allows for features absent in other schema systems. Like Minsky's frames \citep{minsky1974MIT}, we can specify typed slots---e.g. \el{!r1 (?x agent6.n)}---but unlike most descendants of Minsky's frames, we can \textit{relate} slots with arbitrary logical formulas, e.g. \el{(not (?x (can.md (do2.v ?a2))))}. Like Schank and Abelson's scripts, we can specify temporal event sequences, and organize them hierarchically---but unlike Schank and Abelson's scripts, our verb predicates do not rely on an atomic set of primitive actions; their semantics may be specified freely, in terms of other schemas, information extracted from dictionary definitions, or even relevant physical simulations, if desired. They may also remain largely unspecified, or specified only in terms of their relationship to other words; not every word needs to be understood in all its aspects in order to learn useful schemas.
+
 % \section{Protoschema Identification as FrameNet Parsing}
 
 %\section{Latent Schema Sampling}
 
 %\section{Schema Generalization}
 
+\input{CH3_schemas/schema_definition}
+\input{CH3_schemas/schema_hierarchies}
 \input{CH3_schemas/schema_semantics}
+\input{CH3_schemas/matching_inference}
 
 %\subsection{Certainties}
 
-\input{CH3_schemas/schema_hierarchies}
 
-\input{CH3_schemas/protoschemas}
+
+
+
+
+
+
+
+
 
 
 \iffalse

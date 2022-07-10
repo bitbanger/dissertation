@@ -38,9 +38,31 @@ Given a hand-annotated set of English/ELF pairs, we could evaluate the correctne
 \end{figure}
 
 \subsection{ULF-to-ELF Conversion}
-In converting ULFs to ELFs, we adapt the implementation of the EL parser given by \citet{schubert-2014-treebank} to accept pre-formed ULFs rather than creating its own from Treebank parses. Having separated ULF into a prior pipeline step, we refer to this modified parser as \texttt{ulf2elf}. \texttt{ulf2elf} handles quantifier scoping, temporal de-indexing, and some canonicalization steps. We discuss those steps here.
+In converting ULFs to ELFs, we adapt the implementation of the EL parser given by \citet{schubert-2014-treebank} to accept pre-formed ULFs rather than creating its own from Treebank parses. Having separated ULF into a prior pipeline step, we refer to this modified parser as \texttt{ulf2elf}. \texttt{ulf2elf} handles quantifier scoping, tense de-indexing, and some canonicalization steps.
+%We discuss those steps here.
+
+%\subsubsection{Utilizing Syntactic Information}
+%ULF's proximity to the linguistic form of English imbues it with syntactically-derived information that may be absent in the final, more abstract EL form.
+Although canonicalization and post-processing of the ELFs, detailed in \ref{subsec:postproc}, are typically performed after arriving at ELFs, some transductions must be performed, or noted down for later performance, at an earlier stage in the pipeline with access to this syntactic information in the ULFs.
+%For example, the predicate-argument structure of the sentence \textit{``Kim used to sleep.''}, and its corresponding ULF \texttt{(KIM.NAME ((PAST USE.V) (KA SLEEP.V)))}, centers around the root verb predicate, \el{USE.V}, which is parsed into past tense and assigned the reified kind-of-action argument \el{(KA SLEEP.V)}.
+%The de-indexing algorithm used to decode explicit event times from grammatical tense will transmute this syntactic form into the final ELFs \texttt{\texttt{(E1.SK BEFORE NOW1)} and \texttt{((KIM.NAME (USE.V (KA SLEEP.V))) ** E1.SK)}}.
+%Recovery of the original syntax is difficult from this ELF: its source sentence might have been \textit{``Kim used to sleep.''}, but might also have been \textit{``Kim was using [the action of sleeping].''}, whose past progressive tense implies a totally different semantics.
+%Therefore, we normalize the \textit{used to} form during the ULF stage, converting it 
+%Another example is the effect of pronoun choice on quantifier scoping.
+%During ULF-to-ELF conversion, possessive pronoun determiners, e.g. \texttt{(HER.D TOY.N)}, are transmuted into lambda predicates under the scope of the pronoun's referent, e.g. \texttt{(THE.D (L X ((X TOY.N) AND (X PERTAIN-TO \textbf{Y}))))}, where the referent, \texttt{\textbf{Y}} is resolved later.
+%Because the scope of Y is not known---it could be universally quantified, as in \textit{``Every girl loves her toy.''}---
+
+
+\subsubsection{Quantifier Scoping}
+
+\subsubsection{Tense De-Indexing}
+
+\subsection{Anaphora Resolution}
+
+\subsection{Word Sense Disambiguation}
 
 \subsection{Post-processing}
+\label{subsec:postproc}
 The final ELFs obtained from the existing ULF-to-ELF transduction implementation by \citet{schubert-2014-treebank} (heretofore referred to as \texttt{ulf2elf}) are not immediately suitable for use in the schema system; the complex, nested formulas that \texttt{ulf2elf} outputs often require further breakdown and Skolemization to align with the simple, canonicalized formulas found in EL schemas. The simplified EL grammar we assume within the schema system is given by Figure~\ref{fig:el_cfg}; this grammar defines what a ``correct'' EL formula is in the context EL schemas. Even without assuming such a restrictive grammar, however, \texttt{ulf2elf} still introduces a significant number of errors into its output ELFs. Fortunately, however, as \texttt{ulf2elf} is a deterministic, rule-based program, many error types can be classified into patterns and fixed with additional post-processing rules, which we describe here.
 
 We post-process \texttt{ulf2elf} output formulas by iteratively applying two sets of rules---one set written in Lisp and the other implemented as a set of TTT transductions---until a full iteration passes with no changes made. Though more computationally expensive, the Lisp post-processing rules allow for more complicated fixes than TTT would. All of the rules, regardless of implementation, fall into one of the following four categories:

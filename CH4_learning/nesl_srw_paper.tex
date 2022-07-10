@@ -1,4 +1,5 @@
 %\section{Introduction}
+\section{Neuro-Episodic Schema Learning}
 Work on the task of event schema acquisition is largely separable into two main camps: the \textit{symbolic} camp, with its structurally rich but infamously brittle representations \citep{lebowitz1980,norvig1987inference,mooney1990general}; and the \textit{statistical} camp, which utilizes complex models and vast amounts of data to produce large numbers of conceptually varied event schemas at the cost of representational richness and control over what schemas are learned \citep{chambers2008unsupervised,pichotta2016learning,wanzare2017inducing}.
 
 In an attempt to bridge these camps together, we introduce the Neuro-Episodic Schema Learner (NESL), a composite pipeline model bringing together (1) a large, pre-trained language model; (2) word vector embedding techniques; (3) a neural FrameNet parsing and information extraction system; (4) a formal logical semantic representation of English; and (5) a hierarchical event schema framework with extraordinary expressive power.
@@ -15,36 +16,6 @@ contribution of NESL is the idea of \textit{latent schema sampling} (LSS), in wh
     \label{fig:nesl_architecture}
 \end{figure}
 
-\iffalse
-\section{Schema Model}
-\label{sec:schemarep}
-\subsection{Episodic Logic}
-We use Episodic Logic (EL) \citep{hwang1993episodic} as our semantic representation of stories and of schema formulas. EL is an intensional semantic representation that is both well-suited to inference tasks and structurally similar in its surface form to English. 
-A unique feature of EL is its treatment of \textit{episodes} (events, situations)
-as first-class individuals, which may be characterized by arbitrary formulas. For a formula $\phi$ and an episode denoted by $E$, $(\phi~{\it **}~E)$ expresses that $E$ is characterized by $\phi$; i.e., $E$ is an ``episode of'' $\phi$ occurring. 
-%EL allows for intensionality through a possible-episodes semantics, where maximal episodes are possible worlds.
-%The primary unique feature of EL is its first-class possible world representation,
-% known as \textit{episodes}, and the associated \textit{characterization} operator 
-% \texttt{**}. In EL, episodes are individuals in the logical domain that may be 
-% characterized by a formula $\phi$, expressed as $(\phi~**~E)$, meaning that $E$ is an ``episode of'' formula $\phi$. 
-In the EL schema in Figure~\ref{fig:singleschema}, for example, each formula in the \texttt{STEPS} section implicitly characterizes an episode (not displayed). The ``header'' formula at the top of that figure also characterizes an episode variable, \texttt{?E}. EL can temporally relate episodes using predicates implementing the Allen Interval Algebra \citep{allen1983}, allowing for complex and hierarchical situation descriptions.
-
-\subsection{EL Schemas}
-Past approaches to statistical schema learning have largely represented schemas as sequences of lexical event tuples \citep{chambers2008unsupervised,pichotta2016learning}. Seeking a richer representation, we adopt the rich, EL-based schema framework presented by \citet{Lawley2021LearningGE}, henceforth referred to in this paper as \textit{EL schemas}. EL schemas are section-based: the main two sections, \texttt{STEPS} and \texttt{ROLES}, enumerate the temporal events (``steps'') that make up the schema, and the type and relational constraints on the schema's participants, respectively (see Figure~\ref{fig:singleschema}).
-
-Designed as a suitable representation of human-centric events, EL schemas can also specify preconditions, postconditions, arbitrary temporal relationships between steps, and the \textit{goals} of individual participants in the schema. All schema participants are represented as typed variables, all sharing a scope within the same schema, and formulas may include any number of variables as arguments. EL schemas also allow for recursive \textit{nesting}: a schema may be embedded as a step in another schema, and implicitly expanded to check constraints or generate inferences.
-
-%For more information on the EL schema framework, see \citep{lawleykimschubert2019} and \citep{Lawley2021LearningGE}.
-
-\subsubsection{Protoschemas}
-\label{sec:protos}
-The schema system we use here, due to \citet{Lawley2021LearningGE}, is designed to acquire schemas in the manner a two-year-old child might. As a way of modeling general actions a very young child would be likely to understand, we start with a handwritten corpus of several dozen ``\textit{protoschemas}'', such as ``X helps Y with action A'', ``X eats food F to alleviate hunger'', etc.; the aim of this schema learning framework is to first match these protoschemas to stories, and then build progressively more complicated schemas from them.
-
-The schemas built using protoschema matches may add complexity to them in two dimensions: the \textit{compositional} dimension, in which new schemas temporally compose sequences of matched protoschemas to describe a new situation; and the \textit{taxonomic} dimension, in which a protoschema is conceptually narrowed by additional type and relational constraints on its participants, such as ``eating something'' being narrowed to ``eating an apple from a tree''.
-
-Protoschemas provide a rich semantic basis for understanding complex situations in terms of basic human behaviors, and this benefit is also reflected in an immediate practical convenience: protoschemas can be employed as a way of \textit{canonicalizing} multiple distinct linguistic phrasings of the same basic action type. For more information on how we use protoschemas for this in NESL, see Section~\ref{sec:lome}.
-\fi
-
 \begin{figure}
     \centering
     \includegraphics[width=0.95\columnwidth]{figures/nesl/SingleSchema}
@@ -58,8 +29,6 @@ Protoschemas provide a rich semantic basis for understanding complex situations 
     \label{fig:schema}
 \end{figure}
 
-\section{Learning Pipeline}
-\label{sec:pipeline}
 NESL learns schemas using a multi-step pipeline, briefly described in order here, and further expounded upon in following subsections:
 \begin{enumerate}
     \item Using a procedure we call \textit{latent schema sampling}, N short stories are sampled from the same topic-parameterized distribution defined by a language model and a task-specific prompt. (Section~\ref{sec:lss})
@@ -91,26 +60,6 @@ Adopting the hypothesis that story topics encode latent schemas instantiated by 
 \end{figure}
 
 %We attempt to control the language model's latent schema using a few-shot prompt, in which the language model is first asked to summarize a story's topic in a single word, and then to generate three stories according to the same topic.
-
-
-%\input{CH4_learning/lome_protos}
-%%%%%%%%%%%%%
-\iffalse
-\label{sec:lome}
-\begin{figure*}
-    \centering
-    \includegraphics[width=\textwidth]{figures/nesl/lome_architecture}
-    \caption{A presentation of the process by which FrameNet parsing with LOME is used for protoschema matching. The coreference resolver is provided by AllenNLP \citep{Gardner2017AllenNLP}, and the dependency parser is provided by spaCy \citep{spacy2}.}
-    \label{fig:lome_architecture}
-\end{figure*}
-
-To begin forming schemas, we bootstrap by matching general behavioral \textit{protoschemas} to the stories. Protoschema matching is complicated by several issues, including the large number of actions that may evoke a general protoschema (e.g. walking, running, driving, riding, and flying are all kinds of self-motion), and the large number of phrasings that express the same action. To help address these concerns, we first observe that the FrameNet project \citep{framenet} contains many conceptual frames with protoschema analogs, such as self-motion, ingestion, and possession frames. While FrameNet frames lack hierarchical, compositional, and formal internal semantics, and are thus not suitable for the mechanistic inferences these schemas are meant to enable, these frames may be \textit{mapped} to analogous protoschemas as a way to leverage existing work on FrameNet frame parsing.
-
-Using LOME \citep{lome}, a state-of-the-art neural FrameNet parsing system, we identify FrameNet frames in sampled stories. The invoking actions and roles of the frames are given as spans of text, which we reduce to single tokens using a dependency parser, selecting the first token in each span with a \texttt{NSUBJ}, \texttt{DOBJ}, or \texttt{POBJ} tag. The token indices are then aligned with those in the Episodic Logic parser to identify individuals in the logical domain whose type predicates were derived from those tokens. Finally, the frame, now with EL domain individuals as its roles, is mapped to a corresponding protoschema with hand-written mapping rules.
-
-This FrameNet-based protoschema matching process is illustrated, with an example, in Figure~\ref{fig:lome_architecture}.
-\fi
-%%%%%%%%%%%%%%%%
 
 \subsection{Single-Story Schema Formation}
 \label{sec:singleschemas}
@@ -211,6 +160,12 @@ Once finalized, we post-process learned general schemas for human readability. T
 
 After verbalizing the steps, we render the general schemas into an HTML representation for human review, automatically color-coding the variables with maximum mutual contrast for enhanced readability. An example of a verbalized and rendered schema is shown in Figure~\ref{fig:singleschema}.
 
+
+
+
+
+
+\iffalse
 \section{Future Evaluation}
 \label{sec:eval}
 This project is a work in progress; although NESL can generate one general schema every 10 minutes, and has generated several hundred to date, qualitative evaluation of the generated schemas has not yet been performed. Imminently, we intend to carry out two human-judged studies: one evaluating the quality of \textit{inferences} generated by the learned schemas when given unseen stories, and another evaluating the quality of the schemas themselves.
@@ -225,3 +180,4 @@ Using our GPT-2 verbalization model and schema rendering software, described in 
 We have described NESL, a hybrid neural and formal-logical schema learning system with which we aim to combine a richly structured schema representation, a human learning-inspired approach to schema acquisition, the linguistically flexible sentence understanding characteristic of neural NLP systems, and the large amount of knowledge contained in large language models.
 
 By bringing a large and varied number of components from across the literature to bear, we have shown that general, semantically rich, and seemingly sensical schemas may be extracted from large language models and represented interpretably. In the immediate future, we also plan to demonstrate that these schemas are useful for inference tasks.
+\fi

@@ -1,7 +1,8 @@
 \section{ULF Parsing}
 
 \begin{figure}
-\includegraphics{CH2_el/el_pipeline.pdf}
+\centering
+\includegraphics[width=\columnwidth]{CH2_el/el_pipeline.pdf}
 \label{fig:el_pipeline}
 \caption{The stages of the Episodic Logic parsing pipeline. Solid arrows represent the flow of data through the pipeline, and are labeled with the steps needed to obtain the target forms. The relevant changes are highlighted in each stage's example.}
 \end{figure}
@@ -40,7 +41,7 @@ We evaluate all ULF parsers in the manner of \citet{kim2021transition}: ULFs are
 \centering
 \begin{tabular}{c|c|c}
 \toprule
-\multicolumn{1}{c|}{\textbf{Model}}&\multicolumn{1}{c|}{\sembleu}&\multicolumn{1}{c|}{\elsmatch}\\
+\multicolumn{1}{c|}{\textbf{Model}}&\multicolumn{1}{c|}{\sembleu}&\multicolumn{1}{c}{\elsmatch}\\
 % \textbf{CORA}&\textbf{Citeseer}&\textbf{Pubmed}
 %\midrule
 %Model&Accuracy&Accuracy&Accuracy\\
@@ -52,6 +53,6 @@ We evaluate all ULF parsers in the manner of \citet{kim2021transition}: ULFs are
 \texttt{ulf-gpt2}&0.43&0.63\\
 \bottomrule
 \end{tabular}\\[10pt]
-\caption{ULF parsing results. All scores are out of 1.0. \texttt{ulf-from-sentences} is the rule-based transduction parser mentioned in \citep{kim2021naloma}.}
+\caption{ULF parsing performance evaluations. All scores are out of 1.0; bolded scores and models are the best. \texttt{ulf-from-sentences} is the rule-based transduction parser mentioned in \citep{kim2021naloma}.}
 \label{T2}
 \end{table}

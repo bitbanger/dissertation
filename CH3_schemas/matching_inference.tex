@@ -1,1 +1,43 @@
 \section{Matching and Inference}
+\label{sec:match_inf}
+
+\textit{Matching} formulas in semantically parsed stories to formulas in schemas underlies both learning and prediction. The formulas comprising a schema are intended to be relatively simple---with complex conjunctions split into separate formulas---and unifiable with formulas parsed from real stories. Unification of a story formula with a schema formula binds individual constants from the former to variables in the latter. These bindings are then substituted in the rest of the schema instance, thereby ``filling in'' some of the missing information. %% I thought the following caveat is needed. -LS
+This information is likely to be correct if the story events and participant types matched to the schema can be assumed to provide good evidence for an occurrence of the stereotyped pattern of events the schema captures. 
+We refer to any schema instance with one or more bound variables as a \textit{match}.
+
+Using EL formula unification as a primitive, we implement schema matching by iterating through the formulas in an EL parse of a story, matching each formula to any schema formula retrieved as a candidate, and applying the bindings to the schema. When the story has been fully iterated through, or all schema variables have been bound, the match is complete. %% I put in "retrieved as a candidate" -- implying a selective retrieval process. This may not be true right now, but will be essential for scaling up.
+
+We randomly permute story formulas and unify them, in the randomized order, with schema formulas.
+%% Actually I'm not quite sure what this means or how defensible it is. Why not match each episodic story formula, along with any available argument type constraints, to each episodic schema formula, registering the quality of each match (where "more specific" implies higher quality), and then use those match data to do a greedy search for a "best subset of matches" (e.g., start with the one or two best matches, bind variables accordingly, then see if you can add more matches with "good enough" match scores under the same (or compatible) bindings?
+We try multiple permutations to explore the space of possible matches, and cache low-level unification results to speed up the process.
+
+\begin{algorithm}
+\caption{Basic algorithm for matching a story to a schema}
+\label{alg:matching}
+\begin{algorithmic}
+\STATE INPUT: set of story EL formulas $STORY$, a candidate schema $SCH$, number of shuffles $SHUF$, match scoring function $score$
+\STATE OUTPUT: best schema $match$
+\STATE $match \gets null$
+\FOR{i from 0 to $SHUF$}
+    \STATE $STORY \gets shuffle(STORY)$
+    \FOR{$\phi$ in $STORY$}
+        \FOR{$\psi$ in $SCH$}
+            \IF{$\phi$ and $\psi$ unify with variable bindings $B$}
+                \STATE $SCH \gets SCH$ with all bindings in $B$ applied
+            \ENDIF
+        \ENDFOR
+    \ENDFOR
+    \IF{$score(SCH) > score(match)$}
+        \STATE $match \gets SCH$
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Generalizing Matches}
+To generalize a match into a new, ``learned'' schema, we need to incorporate incidental information about the matched value. For example, the variables of the \texttt{travel.v} protoschema can be bound by the constants in the formula \texttt{((MONKEY27.SK (CLIMB.V TREE28.SK)) ** E34.SK)} in a story about a monkey climbing a tree, but re-generalizing the constants \texttt{MONKEY27.SK} and \texttt{TREE28.SK} into unconstrained variables would remove all the information we learned. However, if we incorporate formulas about the types of those objects into our new schema---such as the formulas \texttt{(MONKEY27.SK MONKEY.N)} and \texttt{(TREE28.SK TREE.N)}---we can then generalize the constants but maintain knowledge of their types.
+
+\subsection{Learning Composite Schemas}
+If schemas could only be learned by progressively refining existing protoschemas, schemas would mostly be single-step actions. Some of these, like ``monkey eats banana'', would still be valuable world knowledge, but many more complex event patterns would not be learnable. However, our schema formalism allows for multiple steps, and allow for subschemas within them as steps; we would like to be able to learn schemas that make use of that complexity.
+
+\textit{``First-order''} schemas---that is, refinements of our starting protoschemas---can be strung together into composite schemas in multiple ways. If a schema B has a precondition that unifies with one of schema A's postconditions, and schema A's episode is temporally before schema B's, the two can be ``chained'' together; these chains can be further extended by other simple schemas. This chaining process was how the system learned the schema in Figure~\ref{fig:eg_schema}. Goals may also be unified with postconditions to establish chains.

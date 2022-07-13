@@ -1,4 +1,5 @@
 \section{Schema Components}
+\label{sec:schema_def}
 EL schemas are rich, hierarchical data structures composed primarily of a set of EL \textbf{formulas} organized into one of several disjoint, named \textbf{sections}.
 Each formula has a section-dependent \textbf{formula ID} to uniquely identify it within the scope of the schema.
 Each schema also has a \textbf{header}: an EL proposition, and an episode characterized by the proposition, which names and summarizes the entire schema. 
@@ -15,10 +16,27 @@ The header can be used to ``embed'' a schema as a step in another schema---in fa
 \subsection{Formulas and Sections}
 % Introduce formulas and discuss their piecewiseness
 % Introduce formula-section layout
-Schemas organize their constituent formulas in two types of sections: \textit{fluent} and \textit{nonfluent} sections. Nonfluent sections contain formulas that hold true regardless of time, and are marked by formula IDs beginning with exclamation marks. Such formulas include type constraints on entities (Section~\ref{sec:roles}), temporal relation predications on episodes (Section~\ref{sec:eprels}), and equality constraints on variables within subordinate schemas (Section~\ref{sec:scoping}). Fluent sections, on the other hand, contain formulas identified by variables starting with question marks; the truth value of these formulas is susceptible to change over time alone. Referring to the EL ontology in Figure~\ref{fig:el_ontology}, the semantic type of fluent predicates can be thought of as the more restrictive $(\mathcal{D}^{n} \rightarrow (\mathcal{M} \rightarrow \textbf{2}))$, rather than $(\mathcal{D}^{n} \rightarrow (\mathcal{S} \rightarrow \textbf{2}))$, as specific \textit{moments of time} ($\mathcal{M}$) are needed to determine truth value. Formally, a fluent formula $\phi$ with episode ID \el{?E} is said to characterize its episode ID: ($\phi ** \texttt{?E}$). A non-fluent formula $\psi$, however, does not have an episode ID, as its truth value is not temporally constrained; instead, it is represented by a \textit{metavariable} \el{!E}, any occurrence of which in an EL formula may be equivalently \textit{substituted} with $\psi$.
+Schemas organize their constituent formulas in two types of sections: \textit{fluent} and \textit{nonfluent} sections.
+Nonfluent sections contain formulas that hold true regardless of time, and are marked by formula IDs beginning with exclamation marks.
+Such formulas include type constraints on entities (Section~\ref{sec:roles}), temporal relation predications on episodes (Section~\ref{sec:eprels}), and equality constraints on variables within subordinate schemas (Section~\ref{sec:scoping}).
+Fluent sections, on the other hand, contain formulas identified by variables starting with question marks; the truth value of these formulas is susceptible to change over time alone.
+Referring to the EL ontology in Figure~\ref{fig:el_ontology}, the semantic type of fluent predicates can be thought of as the more restrictive $(\mathcal{D}^{n} \rightarrow (\mathcal{M} \rightarrow \textbf{2}))$, rather than $(\mathcal{D}^{n} \rightarrow (\mathcal{S} \rightarrow \textbf{2}))$, as specific \textit{moments of time} ($\mathcal{M}$) are needed to determine truth value.
+Formally, a fluent formula $\phi$ with episode ID \el{?E} is said to characterize its episode ID: ($\phi ** \texttt{?E}$).
+A non-fluent formula $\psi$, however, does not have an episode ID, as its truth value is not temporally constrained; instead, it is represented by a \textit{metavariable} \el{!E}, any occurrence of which in an EL formula may be equivalently \textit{substituted} with $\psi$.
 
-\subsection{Steps}
+\subsection{Steps and Temporal Relations}
 \label{sec:steps}
+EL schemas represent patterns of general, frequently co-occurring facts and events, the latter of which are primarily found within a schema's \el{:Steps} section.
+The \el{:Steps} section is one of several fluent sections in a schema, and contains all of the events that may happen as a part of the schema.
+Not all steps in a schema are required to happen---the \el{:Certainties} section allows expression of the probabilities of each step happening given that the schema as a whole happened.
+Some schemas may have \textit{no} steps; such schemas are called \textit{atomic}, and exist to imbue the verb predicates in their header propositions with additional semantics, such as preconditions, postconditions, goals, and role constraints.
+Most protoschemas (discussed in Section~\ref{sec:protoschemas}) are atomic.
+
+Each step in a schema has a fluent episode ID \texttt{?Ei}, which the step formula implicitly characterizes.
+Although the steps in a schema are linearized, they are not necessarily temporally sequential; the temporal model of EL allows for complex and explicit specification of temporal relations between events.
+The \texttt{:Episode-relations} section contains two-place temporal predicates relating the schema's steps by their fluent IDs.
+These temporal relations are taken from the Allen Interval Algebra \citep{allen1983maintaining}, under the simplifying assumption each step in the schema can be represented as a contiguous interval.
+
 % steps of a schema are assumed to be linear unless eprels contradicts
 % conjunctions are split up, XOR splits schema, splitting OR is OK depending on what semantics you want matching to have
 % implicit relations to goals, preconds, postconds
@@ -30,9 +48,15 @@ Schemas organize their constituent formulas in two types of sections: \textit{fl
 % compare to other schema/DL frameworks and highlight relational constraints (OWL doesn't have rels, FN uses natural language)
 % comparable to "semantic roles" in FN
 % don't need to "declare" here to use a var in schema, but should probably be typed
-The \texttt{:Roles} section of an EL schema contains nonfluent EL propositions meant to define the semantic roles of the variables used within the schema. The propositions in the \texttt{:Roles} section may use monadic, often noun-based, predicates used to specify types, e.g. \el{(?B BOOK.N)} (\el{?B} \textit{is a book}), or they may use multi-argument predicates to relate entities to one another, e.g. \el{(?B PERTAIN-TO JOHN.NAME)} (\textit{book} \el{?B} \textit{belongs to John}). Role formulas provide a model-theoretic alternative to the natural language descriptions of semantic roles found in existing frame corpora like FrameNet and PropBank. Because role formulas are concise, single-predicate EL propositions, they can function as individual predictions when a schema is matched to a formula parsed from a novel sentence: if an observed formula \el{(JOHN.NAME READ.V BIBLE1.SK)} matched to a schema formula \el{(?X READ.V ?B)}, the binding of \el{?B} to the individual \el{BIBLE1.SK} would also bind \el{?B} in the role formula \el{(?B BOOK.N)}, which leads to the standalone prediction \el{(BIBLE1.SK BOOK.N)} (\textit{``the Bible'' is a book}).
+The \texttt{:Roles} section of an EL schema contains nonfluent EL propositions meant to define the semantic roles of the variables used within the schema.
+The propositions in the \texttt{:Roles} section may use monadic, often noun-based, predicates used to specify types, e.g. \el{(?B BOOK.N)} (\el{?B} \textit{is a book}), or they may use multi-argument predicates to relate entities to one another, e.g. \el{(?B PERTAIN-TO JOHN.NAME)} (\textit{book} \el{?B} \textit{belongs to John}).
+Role formulas provide a model-theoretic alternative to the natural language descriptions of semantic roles found in existing frame corpora like FrameNet and PropBank.
+Because role formulas are concise, single-predicate EL propositions, they can function as individual predictions when a schema is matched to a formula parsed from a novel sentence: if an observed formula \el{(JOHN.NAME READ.V BIBLE1.SK)} matched to a schema formula \el{(?X READ.V ?B)}, the binding of \el{?B} to the individual \el{BIBLE1.SK} would also bind \el{?B} in the role formula \el{(?B BOOK.N)}, which leads to the standalone prediction \el{(BIBLE1.SK BOOK.N)} (\textit{``the Bible'' is a book}).
 
-Role formulas may not always need to be satisfied exactly in order to conclude that a story has matched to a schema. Because schemas are almost always tentative and the learning process is continual, a schema matching algorithm may want to allow a match even when an observed formula, e.g. \el{(NOT (OBJECT1.SK BOOK.N))}, directly contradicts a role formula, e.g. \el{(?B BOOK.N)}. Non-equal predications, such as synonymic or hypernymic ones, may also be judged to satisfy the truth conditions of role predications for the purposes of schema matching. These decisions are complex and depend on heuristics not easily renderable via model theoretic axioms, as we discuss in Section~\ref{sec:formal_semantics}.
+Role formulas may not always need to be satisfied exactly in order to conclude that a story has matched to a schema.
+Because schemas are almost always tentative and the learning process is continual, a schema matching algorithm may want to allow a match even when an observed formula, e.g. \el{(NOT (OBJECT1.SK BOOK.N))}, directly contradicts a role formula, e.g. \el{(?B BOOK.N)}.
+Non-equal predications, such as synonymic or hypernymic ones, may also be judged to satisfy the truth conditions of role predications for the purposes of schema matching.
+These decisions are complex and depend on heuristics not easily renderable via model theoretic axioms, as we discuss in Section~\ref{sec:formal_semantics}.
 
 %The \textbf{Roles} section of a schema is a \textit{nonfluent} section meant for putting ``eternal'' type constraints on the participating entities in the schema. All of the schema's variables, starting with question marks, can be viewed as Skolem functions of the schema's header episode, and they can be constrained in this section. In addition to type constraints, e.g. \texttt{(?X DOG.N)}, relational constraints between entities can also be specified in this section, e.g. \texttt{(?X PERTAIN-TO ?Y)}.
 

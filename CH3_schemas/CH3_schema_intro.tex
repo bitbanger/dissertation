@@ -1,0 +1,28 @@
+% points to consider for introducing schemas:
+% - we have roles and variables
+% - we have composition
+% - we have inheritance
+% - we have rich semantics
+% - we have rich temporal relations
+
+%Generating ``commonsense'' knowledge for intelligent understanding and reasoning is a difficult, long-standing problem, whose scale challenges the capacity of any approach driven primarily by human input. Furthermore, approaches based on mining statistically repetitive patterns fail to produce the rich representations humans acquire, and fall far short of human efficiency in inducing knowledge from text.
+In this chapter, I introduce a new framework for event knowledge representation, the \textbf{EL schema}, which is designed to allow complex schemas with rich, formal semantics to be learned from natural language text with few examples.
+While most modern approaches to automated script learning (e.g.~\cite{chambers2011ACL,pichotta2016WS,yuan2018OEP}) learn linear sequences of simple tuple representations of events, EL schemas are represented using formulas in an expressive formal logic.
+EL schemas are collections of EL formulas, and allow for an unlimited number of participating entities, represented as variables which may be used throughout the schema.
+These variables may be assigned types by using noun and adjective predications, and they may be related to one another using $n$-place predications.
+EL schemas comprise multiple steps, which may be related with a powerful temporal algebra.
+They are also recursively hierarchical structures; they may be nested as steps in other schemas. EL schemas are designed to naturally support inference about novel events on the basis of partial matches of observed formulas to known schemas, allowing the schema system to ``fill in the gaps''.
+Their variables may be filled in by matching entities or steps from a story with entities or steps in a schema and making the relevant variable substitutions in all other schema components; the schema components that were not matched, but which had their variables bound, can be interpreted as inferences about the matched context.
+
+The remainder of this chapter describes the structure and meaning of individual EL schemas (Section~\ref{sec:schema_def}); describes the two hierarchical models under which EL schemas may be organized (Section~\ref{sec:schema_hier}); discusses the formal semantic interpretation of EL schemas and the inference and learning systems surrounding them (Section~\ref{sec:formal_semantics}); introduces the notion of \textit{protoschemas}, and their role in the bottom-up EL schema learning process (Section~\ref{sec:protoschemas}); and outlines the matching of EL schemas to text and the drawing of inferences from those matches (Section~\ref{sec:match_inf}).
+
+%allows for typed and interrelated participating entities; multiple temporally related subevents; specification of goals, preconditions, and postconditions; and nesting of subschemas as steps in another schema.
+
+
+% Unlike the slot-and-filler structures often used in knowledge harvesting, this logical form allows us to specify complex relations and constraints over the slots. Though formal, the representations are language-like, and as such readily relatable to NL text. The agents, objects, and other roles in the schemas are represented by typed variables, and the event variables can be related through partial temporal ordering and causal relations.
+
+%Past approaches to statistical schema learning have largely represented schemas as sequences of lexical event tuples \citep{chambers2008unsupervised,pichotta2016learning}. Seeking a richer representation, we adopt the rich, EL-based schema framework presented by \citet{Lawley2021LearningGE}, henceforth referred to in this paper as \textit{EL schemas}. EL schemas are section-based: the main two sections, \texttt{STEPS} and \texttt{ROLES}, enumerate the temporal events (``steps'') that make up the schema, and the type and relational constraints on the schema's participants, respectively (see Figure~\ref{fig:singleschema}).
+
+%Designed as a suitable representation of human-centric events, EL schemas can also specify preconditions, postconditions, arbitrary temporal relationships between steps, and the \textit{goals} of individual participants in the schema. All schema participants are represented as typed variables, all sharing a scope within the same schema, and formulas may include any number of variables as arguments. EL schemas also allow for recursive \textit{nesting}: a schema may be embedded as a step in another schema, and implicitly expanded to check constraints or generate inferences.
+
+%Our schema representation allows for features absent in other schema systems. Like Minsky's frames \citep{minsky1974MIT}, we can specify typed slots---e.g. \el{!r1 (?x agent6.n)}---but unlike most descendants of Minsky's frames, we can \textit{relate} slots with arbitrary logical formulas, e.g. \el{(not (?x (can.md (do2.v ?a2))))}. Like Schank and Abelson's scripts, we can specify temporal event sequences, and organize them hierarchically---but unlike Schank and Abelson's scripts, our verb predicates do not rely on an atomic set of primitive actions; their semantics may be specified freely, in terms of other schemas, information extracted from dictionary definitions, or even relevant physical simulations, if desired. They may also remain largely unspecified, or specified only in terms of their relationship to other words; not every word needs to be understood in all its aspects in order to learn useful schemas.

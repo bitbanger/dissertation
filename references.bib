@@ -3556,3 +3556,93 @@ series = {SIGIR '83}
   
   copyright = {arXiv.org perpetual, non-exclusive license}
 }
+@inproceedings{rudinger-script-lms,
+    title = "Script Induction as Language Modeling",
+    author = "Rudinger, Rachel  and
+      Rastogi, Pushpendre  and
+      Ferraro, Francis  and
+      Van Durme, Benjamin",
+    booktitle = "Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing",
+    month = sep,
+    year = "2015",
+    address = "Lisbon, Portugal",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D15-1195",
+    doi = "10.18653/v1/D15-1195",
+    pages = "1681--1686",
+}
+@inproceedings{jans-etal-2012-skip,
+    title = "Skip N-grams and Ranking Functions for Predicting Script Events",
+    author = "Jans, Bram  and
+      Bethard, Steven  and
+      Vuli{\'c}, Ivan  and
+      Moens, Marie Francine",
+    booktitle = "Proceedings of the 13th Conference of the {E}uropean Chapter of the Association for Computational Linguistics",
+    month = apr,
+    year = "2012",
+    address = "Avignon, France",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/E12-1034",
+    pages = "336--344",
+}
+@inproceedings{rudinger-etal-2015-learning,
+    title = "Learning to predict script events from domain-specific text",
+    author = "Rudinger, Rachel  and
+      Demberg, Vera  and
+      Modi, Ashutosh  and
+      Van Durme, Benjamin  and
+      Pinkal, Manfred",
+    booktitle = "Proceedings of the Fourth Joint Conference on Lexical and Computational Semantics",
+    month = jun,
+    year = "2015",
+    address = "Denver, Colorado",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/S15-1024",
+    doi = "10.18653/v1/S15-1024",
+    pages = "205--210",
+}
+@inproceedings{lee-goldwasser-2019-multi,
+    title = "Multi-Relational Script Learning for Discourse Relations",
+    author = "Lee, I-Ta  and
+      Goldwasser, Dan",
+    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+    month = jul,
+    year = "2019",
+    address = "Florence, Italy",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/P19-1413",
+    doi = "10.18653/v1/P19-1413",
+    pages = "4214--4226",
+    abstract = "Modeling script knowledge can be useful for a wide range of NLP tasks. Current statistical script learning approaches embed the events, such that their relationships are indicated by their similarity in the embedding. While intuitive, these approaches fall short of representing nuanced relations, needed for downstream tasks. In this paper, we suggest to view learning event embedding as a multi-relational problem, which allows us to capture different aspects of event pairs. We model a rich set of event relations, such as Cause and Contrast, derived from the Penn Discourse Tree Bank. We evaluate our model on three types of tasks, the popular Mutli-Choice Narrative Cloze and its variants, several multi-relational prediction tasks, and a related downstream task{---}implicit discourse sense classification.",
+}
+@inproceedings{chambers-2017-behind,
+    title = "Behind the Scenes of an Evolving Event Cloze Test",
+    author = "Chambers, Nathanael",
+    booktitle = "Proceedings of the 2nd Workshop on Linking Models of Lexical, Sentential and Discourse-level Semantics",
+    month = apr,
+    year = "2017",
+    address = "Valencia, Spain",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/W17-0905",
+    doi = "10.18653/v1/W17-0905",
+    pages = "41--45",
+    abstract = "This paper analyzes the narrative event cloze test and its recent evolution. The test removes one event from a document{'}s chain of events, and systems predict the missing event. Originally proposed to evaluate learned knowledge of event scenarios (e.g., scripts and frames), most recent work now builds ngram-like language models (LM) to beat the test. This paper argues that the test has slowly/unknowingly been altered to accommodate LMs.5 Most notably, tests are auto-generated rather than by hand, and no effort is taken to include core script events. Recent work is not clear on evaluation goals and contains contradictory results. We implement several models, and show that the test{'}s bias to high-frequency events explains the inconsistencies. We conclude with recommendations on how to return to the test{'}s original intent, and offer brief suggestions on a path forward.",
+}@inproceedings{glucose,
+    title = "{GLUCOSE}: {G}enera{L}ized and {CO}ntextualized Story Explanations",
+    author = "Mostafazadeh, Nasrin  and
+      Kalyanpur, Aditya  and
+      Moon, Lori  and
+      Buchanan, David  and
+      Berkowitz, Lauren  and
+      Biran, Or  and
+      Chu-Carroll, Jennifer",
+    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+    month = nov,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.emnlp-main.370",
+    doi = "10.18653/v1/2020.emnlp-main.370",
+    pages = "4569--4586",
+    abstract = "When humans read or listen, they make implicit commonsense inferences that frame their understanding of what happened and why. As a step toward AI systems that can build similar mental models, we introduce GLUCOSE, a large-scale dataset of implicit commonsense causal knowledge, encoded as causal mini-theories about the world, each grounded in a narrative context. To construct GLUCOSE, we drew on cognitive psychology to identify ten dimensions of causal explanation, focusing on events, states, motivations, and emotions. Each GLUCOSE entry includes a story-specific causal statement paired with an inference rule generalized from the statement. This paper details two concrete contributions. First, we present our platform for effectively crowdsourcing GLUCOSE data at scale, which uses semi-structured templates to elicit causal explanations. Using this platform, we collected a total of {\textasciitilde}670K specific statements and general rules that capture implicit commonsense knowledge about everyday situations. Second, we show that existing knowledge resources and pretrained language models do not include or readily predict GLUCOSE{'}s rich inferential content. However, when state-of-the-art neural models are trained on this knowledge, they can start to make commonsense inferences on unseen stories that match humans{'} mental models.",
+}

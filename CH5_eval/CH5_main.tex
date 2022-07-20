@@ -14,12 +14,28 @@ While NESL uses a generative language model to produce stories as an initial sou
 
 \section{Schema Evaluation}
 \label{sec:schema_eval}
+Our first study evaluated the quality of individual schema formulas learned by NESL. We presented learned schema formulas from the \texttt{:Steps} and \texttt{:Goals} sections to human annotators and asked them to rate the quality of the formula, given the schema topic, on a 1-5 Likert scale. The prompt given to the evaluators was the following:
+\begin{displayquote}
+\textit{The statement above is a reasonably clear, entirely plausible general claim and seems neither too specific nor too general or vague to be useful.}
+\end{displayquote}
+This prompt is due to \citet{knext-eval}, who used it to elicit evaluations of quality of automatically acquired knowledge formulas from the \texttt{KNEXT} acquisition system. It incorporates three key dimensions into one quality rating: \textbf{clarity} of the representation, and \textbf{plausibility} and \textbf{generality} of the claim.
+
+Prior work on human evaluation of automatically acquired script-like knowledge has used comparable study design. We compare our results to \citet{pichotta2016learning}, whose inferred event tuples were rated on a Likert scale, with values ranging from \textit{Very Unlikely} to \textit{Very Likely}, by human evaluators. While the semantics of the prompt are more ambiguous than our \texttt{KNEXT}-derived prompt, the normalized results are more or less comparable. \citet{weber_causal_scripts} evaluate acquired knowledge using two metrics, one of which is the \textit{event chain completion} metric, in which human evaluators rate the likelihood of a predicted event given a chain of preceding events. The comparison of this metric to ours is arguably the least direct, as we evaluate the likelihood of an event predicated on the truth of the schema's \textit{topic}; however, under the assumption that the given events in the event chain completion metric sufficiently characterize an implicit schema topic to the human evaluator, a comparison is possible. \citet{goal-oriented-scripts} ask human evaluators to \textit{edit} learned scripts by either re-ordering their steps or deleting irrelevant steps. This leads to an approximation of schema relevance defined by the ratio of edited script length to original script length, i.e. how many of the learned events were judged to be irrelevant. \citet{starsem-scripts} manually evaluate their own script events for topical relevance, among other things.
+
+For each step and goal formula in each learned schema, we first constructed a \textit{tabular representation}, meant to render the EL formula in a human-readable way while still illustrating its formal predicate-argument structure.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{CH4_learning/evaleg3.pdf}
     \caption{An example of a form presented to a schema quality evaluator for a \textit{step} formula.}
     \label{fig:step_eval_eg}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{CH5_eval/gpteval}
+    \caption{An example of a form presented to a schema quality evaluator for a \textit{step} formula that has been rendered, using GPT-2, into natural English. This corresponds to the \textit{tabular} version shown in Figure~\ref{fig:step_eval_eg}.}
+    \label{fig:gpt_step_eval_eg}
 \end{figure}
 
 \begin{figure}

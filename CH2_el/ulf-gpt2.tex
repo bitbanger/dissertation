@@ -1,4 +1,5 @@
 \subsection{Language Model-Based ULF Parsing}
+\label{sec:ulf-gpt2}
 In crafting an EL parsing pipeline, we experimented with using GPT-2, a state-of-the-art language model architecture based on a decoder-only transformer \citep{Radford2019LanguageMA}. Our intuition was that, given ULF's similarity to the syntactic surface form of English, a pre-trained language model might be able to perform well at ULF parsing by casting the problem as one of translation. In this light, we fine-tuned GPT-2 models to perform translation not just of English into ULF (parsing), but of ULF into English (verbalization). This section describes those models and the experiments performed on them.
 \subsubsection{Objective}
 %Like \citet{gpt-too}, we chose to fine-tune the GPT-2 \citep{Radford2019LanguageMA} language model to perform both of our tasks. Our approach differs slightly in that we did not adapt the default tokenizer to the ULF syntax, nor did we add the \texttt{\textbf{<SEP>}} or \texttt{\textbf{<END>}} tokens to the GPT-2 vocabulary, as modifying the tokenizer did not meaningfully improve performance on either task.

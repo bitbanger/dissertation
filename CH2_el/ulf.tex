@@ -1,4 +1,5 @@
 \section{ULF Parsing}
+\label{sec:ulf-parsing}
 
 \begin{figure}
 \centering
@@ -56,3 +57,5 @@ We evaluate all ULF parsers in the manner of \citet{kim2021transition}: ULFs are
 \caption{ULF parsing performance evaluations. All scores are out of 1.0; bolded scores and models are the best. \texttt{ulf-from-sentences} is the rule-based transduction parser mentioned in \citep{kim2021naloma}.}
 \label{T2}
 \end{table}
+
+The rule-based ULF parser, \texttt{ulf-from-sentences}, holds the top \elsmatch score, and ties with the cache transition parser for the highest \sembleu score. These results mirror the observations of \citet{kim2021naloma}, who found that, while the cache transition parser was able to handle longer sentences with more variety, the rule-based \texttt{ulf-from-sentences} ultimately produced more reliable ULF parses. ULF's well-specified structure makes it amenable to rule-based error correction after an initial parse; combined with the effects of a relatively small training corpus on the neural ULF parsing alternatives, the effectiveness of rule-based error correction led us to choose \texttt{ulf-from-sentences} as our ULF parser in the EL parsing pipeline we describe in Section~\ref{sec:parsing}.

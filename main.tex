@@ -13,6 +13,8 @@
 \hypersetup{colorlinks=true,citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
 
 \usepackage{times}
+\usepackage{placeins}
+%\usepackage{flafter}
 \usepackage{csquotes}
 \usepackage{latexsym}
 \usepackage{graphicx}
@@ -20,9 +22,11 @@
 \usepackage{amsmath}
 \usepackage{longtable}
 \usepackage[T1]{fontenc}
+\usepackage{mathtools}
 \usepackage{amsfonts}
 \usepackage{relsize}
 \usepackage{fancyvrb}
+\usepackage{makecell}
 \usepackage{array}
 \usepackage{pgf}
 \usepackage{tikz}
@@ -46,6 +50,7 @@
 \usepackage{algorithm}
 \usepackage[noend]{algorithmic}
 \usepackage{xspace}
+\usepackage{multicol}
 \usepackage{booktabs}
 
 \tikzset{
@@ -108,13 +113,14 @@ tabsize=2
 \include{preamble/dedication}
 
 \tableofcontents
-\listoftables
-\listoffigures
 
 \include{preamble/cv}
 \include{preamble/acknowledgments}
 \include{preamble/abstract}
 \include{preamble/contributors}
+
+\listoftables
+\listoffigures
 
 \include{CH1_intro/intro}
 

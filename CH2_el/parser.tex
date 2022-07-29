@@ -26,7 +26,7 @@ Given a hand-annotated set of English/ELF pairs, we could evaluate the correctne
     \item The accuracy of the anaphora/coreference resolution step, for which we adopt the accuracy measurements of the underlying coreference analysis engine integrated into the EL parsing pipeline.
     \item The accuracy of quantifier scoping.
     \item The accuracy of canonicalization, which we conservatively define to be the proportion, evaluated on a set of held-out stories, of final ELFs that conform to the grammar given by Figure~\ref{fig:el_cfg}.
-    \item Event de-indexing accuracy, which
+    \item The accuracy of tense de-indexing., which is not explicitly known; tense de-indexing is performed using the implementation of tense trees \citet{schubert1990tensetrees}, and no correctness evaluations on any corpora were produced for that method, which relies on qualitative arguments of correctness. However, our implementation of tense tree de-indexing does not include temporal adverbial de-indexing, and so formulas with temporal adverbials can be assumed to be incorrectly de-indexed.
 \end{enumerate}
 
 \begin{figure}
@@ -54,12 +54,29 @@ Although canonicalization and post-processing of the ELFs, detailed in \ref{subs
 
 
 \subsubsection{Quantifier Scoping}
+% state left-to-right order assumption.
+% (Len email has justification involving determiners)
 
 \subsubsection{Tense De-Indexing}
+% calculate lower bound of correctness: sentences with only one tense and no temporal adverbs
+% calculate upper bound of correctness: sentences with no temporal adverbs
 
 \subsection{Anaphora Resolution}
+\label{sec:anaphora_res}
+
+Two kinds of anaphora resolution are performed in EL parsing: \textbf{entity resolution}, in which co-referring entities are merged, and \textbf{predicate resolution}, in which untyped words that refer to previously introduced predicates are re-typed with those predicates. An example of predicate resolution is found in the phrase ``a new one'', in which the type of the object represented by the noun ``one'' is undetermined: a new one of what? Both kinds of resolution are performed using the AllenNLP library's co-reference resolution tool \citep{Gardner2017AllenNLP}, which itself solves only the entity resolution problem by identifying co-referring clusters of spans of token indices. Because token indices are also known for EL predicates (and some individuals, like names, introduced directly by the text), we identify individuals in the logical domain with type predicates whose indices exist inside spans identified by AllenNLP. These spans may identify multiple individuals or predicates in the ELFs, e.g. ``her iPhone'', whose span nests both the individual ``her'' and the individual ``iPhone''. However, each component individual of such a span will have its own one-width span in its own co-reference cluster, and so this aliasing problem is averted by processing co-reference spans in order of increasing width.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.99\columnwidth]{CH2_el/coref_fig.pdf}
+    \caption{An illustration of the anaphora resolution stage of EL parsing described in Section~\ref{sec:anaphora_res}. Solid blue arrows denote steps of \textbf{entity resolution}, in which co-referring entities are merged. Dashed green arrows denote steps of \textbf{predicate resolution}, in which a referred-to predicate is identified and applied to a distinct entity.}
+    \label{fig:coref_process}
+\end{figure}
+
+The only predicate anaphora we currently handle are those where the referring word is ``one'', as in ``a new one''. To handle this, we alter the source text by replacing any noun-tagged ``one'' with the string ``one of it''. We then once again perform entity resolution as described above, only identifying the cluster to which the newly introduced ``it'' belongs. The type predicates describing individuals in that cluster are then extracted from the EL parse and applied to the original EL parse's ``one'' individual, whose \el{ONE.N} predicate is then removed, and whose Skolem name is re-calculated from its new predicates. The predicate resolution step occurs after the entity resolution step.
 
 \subsection{Word Sense Disambiguation}
+We do not currently perform word sense disambiguation in our EL parser due to the downstream use case of EL schema learning; EL schemas aim to provide a full situational context for each action, and so word senses, which aim to clarify the action represented by a verb, are not necessary when schemas are fully fleshed out with semantic types for all arguments and other relevant context. Annotating verbs with word senses in an error-prone way risks contradicting the actual context within the schema. If word senses are still required after schema learning is complete, the context provided by each schema will hopefully provide even more information to pick senses, whereas little information will have been lost from the original text. During protoschema-based learning, which we describe in Sections~\ref{sec:protoschemas}~and~\ref{sec:lome}, we use neural methods that implicitly assess word sense based on sentential context to pick the best matching protoschema.
 
 \subsection{Post-processing}
 \label{subsec:postproc}

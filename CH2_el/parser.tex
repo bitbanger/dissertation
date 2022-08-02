@@ -1,5 +1,3 @@
-\input{CH2_el/ulf}
-
 \section{Episodic Logic Parsing}
 \label{sec:parsing}
 This section describes the means by which we parse Episodic Logical Forms (ELFs) from English sentences. When constructing the parser, we opted not to construct an explicit dataset of ELF/English pairs, as is customary for both training and evaluation in many semantic parsing endeavors; the cost of such involved manual annotation was not tractable for this project. Instead, we exploit the structure of the EL parsing pipeline (Figure~\ref{fig:el_pipeline}), in which an initial semantic parse is handled by a ULF parser, and final ELFs are obtained by performing further steps.

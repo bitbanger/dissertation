@@ -1,15 +1,68 @@
 \section{Matching and Inference}
 \label{sec:match_inf}
 
-\textit{Matching} formulas in semantically parsed stories to formulas in schemas underlies both learning and prediction. The formulas comprising a schema are intended to be relatively simple---with complex conjunctions split into separate formulas---and unifiable with formulas parsed from real stories. Unification of a story formula with a schema formula binds individual constants from the former to variables in the latter. These bindings are then substituted in the rest of the schema instance, thereby ``filling in'' some of the missing information. %% I thought the following caveat is needed. -LS
-This information is likely to be correct if the story events and participant types matched to the schema can be assumed to provide good evidence for an occurrence of the stereotyped pattern of events the schema captures. 
+\textit{Matching} formulas in semantically parsed stories to formulas in schemas underlies both learning and inference. The formulas comprising a schema are intended to be relatively simple---with complex conjunctions split into separate formulas---and unifiable with formulas parsed from real stories. Unification of a story formula with a schema formula binds individual constants from the former to variables in the latter. These bindings are then substituted in the rest of the schema instance, thereby ``filling in'' some of the missing information. %% I thought the following caveat is needed. -LS
+This information is likely to be correct if the story events and participant types matched to the schema can be assumed to provide good evidence for an occurrence of the stereotyped pattern of events the schema captures, i.e., if the schema can be considered to have been ``confirmed'' by the observations.
 We refer to any schema instance with one or more bound variables as a \textit{match}.
 
-Using EL formula unification as a primitive, we implement schema matching by iterating through the formulas in an EL parse of a story, matching each formula to any schema formula retrieved as a candidate, and applying the bindings to the schema. When the story has been fully iterated through, or all schema variables have been bound, the match is complete. %% I put in "retrieved as a candidate" -- implying a selective retrieval process. This may not be true right now, but will be essential for scaling up.
+For our schema inference experiment (Section~\ref{sec:inf_eval}), we implement a basic matching algorithm that operates given an EL parse of a story and a pre-selected candidate schema (Algorithm~\ref{alg:matching}). The simplicity of that algorithm is due to the limited scale of the experiment. Schema candidate selection becomes difficult as the corpus of learned schemas grows large, but with only dozens of learned schemas at this stage in the project, our corpus is not yet large enough to perform meaningful experiments with large-scale candidate selection. Similarly, the schemas learned so far have been individually quite simple, with at most one nesting level and a handful of formulas each. Our current matching algorithm has only been designed to deal with matching stories to schemas of that scale, and as such will likely require substantial refinement as learned schemas grow in complexity. The basic matching algorithm was also developed using only a small development corpus of three learned schemas, resulting in largely intuited heuristics, such as its scoring function, that have yet to be tested at scale. Nevertheless, we include here a description of the basic schema matching algorithm used in our inference experiments.
 
-We randomly permute story formulas and unify them, in the randomized order, with schema formulas.
+\subsection{Basic Matching Algorithm}
+Using EL formula unification as a primitive, we implemented basic schema matching (Algorithm~\ref{alg:matching}) by iterating through the formulas in an EL parse of a story, matching each formula to any schema formula retrieved as a candidate, and applying the bindings to the schema. When the story has been fully iterated through, or all schema variables have been bound, the match is complete.
+Algorithm~\ref{alg:matching} does not account for nested schemas; nested schemas can be ``flattened'', however, with all of their formulas placed inside the nesting schema, to allow the matching algorithm to match at all nesting levels without modification.
+Because the order of formula matches can affect what variables are bound, and therefore which formulas may be subsequently matched, we randomly permute story formulas and unify them, in the randomized order, with schema formulas.
+We try multiple permutations to explore the space of possible matches, searching for the highest scoring match, and cache low-level unification results to speed up the process.
+We minimize the number of unification attempts by first unifying all story individuals and schema variables with shared types, provided they are each the only individual with that type in their source.
+
+\begin{algorithm}
+\caption{A basic algorithm for matching a story to a schema.}
+\label{alg:matching}
+\begin{algorithmic}
+\STATE INPUT: set of story EL formulas $STORY$, a candidate schema $SCH$, number of shuffles $SHUF$, match scoring function $score$
+\STATE OUTPUT: best schema $match$
+\STATE $match \gets null$
+\STATE $SCH \gets flatten(SCH)$
+\STATE $B_{cur}$ are empty bindings
+\FOR{$V$ in $variables(SCH)$}
+    \FOR{$I$ in $individuals(STORY)$}
+        \IF{$type(V) = type(I)$ and no other variables/individuals have the same type}
+            \STATE bindings $B_{cur}$ are updated to bind $V$ to $I$
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\FOR{i from 0 to $SHUF$}
+    \STATE $STORY \gets shuffle(STORY)$
+    \FOR{$\phi$ in $STORY$}
+        \FOR{$\psi$ in $SCH$}
+            \IF{$\phi$ and $\psi$ unify under bindings $B_{cur}$ to make variable bindings $B_{new}$}
+                \STATE $B_{cur} \gets \text{all new bindings in} \  B_{new}$
+            \ENDIF
+        \ENDFOR
+    \ENDFOR
+    \IF{$score(SCH) > score(match)$}
+        \STATE $match \gets SCH$
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Scoring}
+When a schema is matched to a story, some constraints may be broken; this is a natural part of the learning process. A schema for a cow eating grass matched to a story about a dog eating grass violates the cow constraint on a participating entity, but is a valuable source of knowledge if properly generalized. On the other hand, too many broken constraints are indicative of a poor match between a schema candidate and a story.
+Schema matches are heuristically scored by counting satisfied constraints, weighted by constraint type. Confirmed Role constraints are worth half as many points as confirmed events in the Steps section. Confirming the schema's header formula is worth twice the points of any other event.
+For inexact matches---e.g., \texttt{(?X COW.N)} and \texttt{(ROVER.NAME DOG.N)}---the score of the binding is further weighted by the approximate semantic similarity of the two words. If one subsumes the other in the WordNet hypernym hierarchy, the strength is scaled by the distance of the two in that hierarchy. If neither subsumes the other, but they share a common ancestor hypernym, the strength is half their average distance to that ancestor.
+The hypernym score accounts for half of the overall weight of an inexact match; the other half is provided by their semantic similarity according to a pre-trained word embedding model.\footnote{\textit{GoogleNews-vectors-negative300.bin}, \citet{NIPS2013_5021}}
+
+When evaluating the quality of a schema match, we naturally do so in terms of the number of formulas in the schema that are present in the observed story after making appropriate variable substitutions. However, schemas would not be useful for inference if we required all of its formulas to be matched to observations; their inferential capacity is a result of their expected \textit{over}-coverage of typical stories instantiating them. When the highest-scoring match of a story to a schema has been obtained, we must decide whether to \textit{abandon} the match due to its unsuitability for the story; or whether, instead, to \textit{confirm} the match, treating its unmatched formulas as (at least tentative) inferences. Identifying which subsets of matched formulas suffice to imply the truth of which subsets of unmatched formulas is a complicated problem with a large combinatorial space. Because the inference experiment in Section~\ref{sec:inf_eval} begins with stories known to match the schemas being evaluated, this matching algorithm does not currently make such determinations. The construction of an effective heuristic for doing so would likely require a larger and more diverse corpus of schemas than we have been able to learn and assess as of this writing.
+
+\iffalse
+Using EL formula unification as a primitive, we implement basic schema matching by iterating through the formulas in an EL parse of a story, matching each formula to any schema formula retrieved as a candidate, and applying the bindings to the schema. When the story has been fully iterated through, or all schema variables have been bound, the match is complete.
+While Algorithm~\ref{alg:matching} does not explicitly account for meronomic nesting, nested schemas can be ``flattened'', with all of their formulas placed inside the nesting schema, to allow the algorithm to match at all nesting levels without modification.
+Because the order of formula matches can affect what variables are bound, and therefore which formulas may be subsequently matched, we randomly permute story formulas and unify them, in the randomized order, with schema formulas.
+We try multiple permutations to explore the space of possible matches, searching for the highest scoring match, and cache low-level unification results to speed up the process.
+We currently implement the match scoring function as the number of schema formulas successfully bound to story formulas.
+%% I put in "retrieved as a candidate" -- implying a selective retrieval process. This may not be true right now, but will be essential for scaling up.
+
 %% Actually I'm not quite sure what this means or how defensible it is. Why not match each episodic story formula, along with any available argument type constraints, to each episodic schema formula, registering the quality of each match (where "more specific" implies higher quality), and then use those match data to do a greedy search for a "best subset of matches" (e.g., start with the one or two best matches, bind variables accordingly, then see if you can add more matches with "good enough" match scores under the same (or compatible) bindings?
-We try multiple permutations to explore the space of possible matches, and cache low-level unification results to speed up the process.
 
 \begin{algorithm}
 \caption{Basic algorithm for matching a story to a schema}
@@ -34,6 +87,11 @@ We try multiple permutations to explore the space of possible matches, and cache
 \end{algorithmic}
 \end{algorithm}
 
+In the implementation of this matching algorithm for inference experiments (see Chapter~\ref{chap:eval}), we minimize the complexity of shuffling by first unifying all story individuals and schema variables with shared types, provided they are each the only individual with that type in their source. We also prefer to match step formulas, which have more specific verb predicates, before matching more generically formed precondition and postcondition formulas. In many cases, matching individuals by type and then matching step formulas binds all variables in the schema early on, saving time.
+
+\fi
+
+\iffalse
 \subsection{Generalizing Matches}
 To generalize a match into a new, ``learned'' schema, we need to incorporate incidental information about the matched value. For example, the variables of the \texttt{travel.v} protoschema can be bound by the constants in the formula \texttt{((MONKEY27.SK (CLIMB.V TREE28.SK)) ** E34.SK)} in a story about a monkey climbing a tree, but re-generalizing the constants \texttt{MONKEY27.SK} and \texttt{TREE28.SK} into unconstrained variables would remove all the information we learned. However, if we incorporate formulas about the types of those objects into our new schema---such as the formulas \texttt{(MONKEY27.SK MONKEY.N)} and \texttt{(TREE28.SK TREE.N)}---we can then generalize the constants but maintain knowledge of their types.
 
@@ -43,3 +101,4 @@ If schemas could only be learned by progressively refining existing protoschemas
 \textit{``First-order''} schemas---that is, refinements of our starting protoschemas---can be strung together into composite schemas in multiple ways. If a schema B has a precondition that unifies with one of schema A's postconditions, and schema A's episode is temporally before schema B's, the two can be ``chained'' together; these chains can be further extended by other simple schemas.
 %This chaining process was how the system learned the schema in Figure~\ref{fig:eg_schema}.
 Goals may also be unified with postconditions to establish chains.
+\fi

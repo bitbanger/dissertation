@@ -1,4 +1,4 @@
-\section{FrameNet}
+\subsection{FrameNet}
 \label{sec:framenet}
 
 The Berkeley FrameNet project \citep{framenet}, started in 1997 and continuously ongoing, aims to provide a comprehensive corpus of semantic frames that describe events, objects, and abstract relationships in the real world.
@@ -10,7 +10,7 @@ This structural disparity can be seen as an artifact of the ``looseness'' of the
 
 Today, the FrameNet corpus comprises 1224 frames \footnote{Frame count information taken from \url{https://framenet.icsi.berkeley.edu/fndrupal/current_status} at the time of writing.}---all of them hand-engineered---and they cover many topics: some example frame names are ``invasion scenario'', ``losing track of'', ``key'', ``hair configuration'', and ``change of leadership''.
 
-\subsection{FrameNet frames}
+%\subsubsection{FrameNet frames}
 Frames in FrameNet depend heavily on natural language to represent concepts. Every frame includes a description, in ordinary language, of the concept it represents. However, they do also provide some semantic structure: they demarcate, name, and informally define (i.e., using natural language) the actors, objects, and other conceptual entities necessary to understand the frame, in the form of \textbf{Frame Elements} (\textbf{FEs}). It also specifies a list of words that evoke the frame, which it calls \textbf{Lexical Units} (\textbf{LUs}). Finally, FrameNet has a set of \textbf{Relations} for composing and relating frames. These constructs are described below.
 
 \subsubsection{Frame Elements (FEs)}
@@ -21,7 +21,7 @@ Frames have two types of FEs: \textbf{Core FEs}, which essentially define the fr
 \subsubsection{Lexical Units (LUs)}
 LUs are words---specifically, lemmas with part-of-speech tags---that evoke frames. LUs are also sense-unambiguous: words with many possible senses, like ``run'' or ``play'', are split into multiple LUs (one for each sense). Each frame a list of the lexical units that evoke it. LUs for the \texttt{Cooking\_creation} frame include \texttt{bake.v}, \texttt{cooking.n}, and \texttt{roast.v}. LUs are only connected to the frame: FEs do not have associated LUs.
 
-\subsubsection{Relations}
+\subsubsection{Frame Relations}
 Frames may be related to one another in several important ways:
 
 \begin{itemize}
@@ -39,13 +39,13 @@ Frames may be related to one another in several important ways:
 
 \end{itemize}
 
-\subsection{Applications}
+\subsubsection{Applications}
 \label{sec:srl}
 FrameNet has seen extensive use since its inception, most notably for the task of semantic role labeling (SRL) in sentences, for which its Frame Elements are suited almost by definition. In fact, the very first attempt at automatic SRL, by \citet{gildea2002automatic}, used FrameNet as the source of its semantic roles. Following their discriminative model (of role-arguments-given-the-frame), work on identifying, and populating the roles of, frames evoked by text has continued, aided by modern learning technologies: \citet{thompson2003generative} extended the model to a generative model of both the evoked frame \textit{and} its arguments, \citet{giuglea2006semantic} did SRL with a support-vector machine model, and later systems like Open-SESAME \citep{opensesame} have used recurrent neural networks.
 
 FrameNet has been used for many ``downstream'' tasks, as well. \citet{rahman2011} applied knowledge extracted FrameNet, and the subject-predicate-object fact database YAGO \citep{yago}, to the task of co-reference resolution. \citet{shen2007using} used FrameNet for question answering by computing question-candidate answer similarity scores using both common semantic roles and mutual frame evocation as heuristics. \citet{framenetspatial} used the FrameNet model to represent spatial relations, harkening back to \citep{Minsky:1974:FRK:889222}, in which frames were first posited as a potential spatial scene representation. FrameNet parsers are even used in this dissertation to help ``bootstrap'' episodic logic schema learning (see Section~\ref{sec:lome}).
 
-\subsection{Discussion}
+\subsubsection{Discussion}
 
 FrameNet is a practical system intended to support downstream natural language tasks. Though it encodes minimal formal structure, instead ``falling back'' to natural language descriptions of frames and roles, its real value has come from the generality of its frames, which cover many situations, and the usefulness of its semantic role definitions in the form of Frame Elements. However, FrameNet's frames are all manually generated, and its heavy reliance on natural language descriptions make automatic frame generation extremely difficult. So while FrameNet is certainly a valuable resource, and a monumental effort of manual schema engineering, it is unlikely to underlie any future system capable of full story understanding; its inherent scalability issues are simply insufficient to reliably model and relate the huge breadth of concepts needed to understand arbitrary stories.
 

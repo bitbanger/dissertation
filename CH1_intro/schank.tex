@@ -1,4 +1,4 @@
-\section{Schank \& Abelson's Scripts}
+\subsection{Schank \& Abelson's Scripts}
 \label{sec:schank}
 
 \lstset{language=Lisp,
@@ -21,11 +21,11 @@ One of the most influential theories of script-based language understanding is d
 
 %\input{CH1_intro/schank_cdtheory}
 
-%\subsection{Scripts}
+%\subsubsection{Scripts}
 %We come now to \textit{scripts}, the core of the book.
 A script describes an entire situation: sequences of events, their causal relations, and sets of involved actors, objects, locations, and other entities falling under the purview of CD theory. Befitting their name, this book's ``scripts'' have many similarities with play scripts, i.e. screenplays: both representations are divided into ``scenes''; both ``set the stage'', so to speak, by introducing actors, sets, and notable objects in each scene; and both describe a sequence of actions (for screenplays, mostly speech actions). However, they differ from screenplays in an important way: scripts in the Schank and Abelson sense model generalized, ``stereotyped'' event sequences that fit many actual situations in the world, for example ``eating at a restaurant'' or ``graduating college''. The specific actors, objects, and locations are not fixed in this representation, but may be filled in on the basis of actual observed events. In this way, scripts are useful for explaining, and making predictions about, \textit{arbitrary} stories and observations.
 
-\subsubsection{Script structure}
+\subsubsection{Script Structure}
 Scripts have a dual structure: they have named slots, filled with values, %\footnote{These structures are quite similar to Minsky's frames, which are described in Section~\ref{sec:minsky}.},
 and they have temporal action sequences describing an overall situation's procession. The named slots hold values of the types supported by CD theory: they may have \textit{actors}, which are animate objects capable of performing active conceptualizations; \textit{props}, which are physical objects; and locations. The event sequences are divided into \textit{scenes}: for example, their book's canonical ``restaurant'' script, which I've illustrated in Appendix~\ref{appendix:egschankscript}, has scenes for entering, ordering, eating, and exiting.
 
@@ -36,7 +36,7 @@ Scripts may have \textit{entry conditions}: in the restaurant example, the custo
 Finally, scripts may have \textit{tracks}: conceptual specifications of the script type. They can also be thought of as ``subclasses'', in the object-oriented programming sense. For example, the restaurant script they present is on the ``coffee shop'' track, but restaurant scripts would also need tracks, they say, for pubs, diners, and all other sorts of restaurant.
 
 \iffalse
-\subsubsection{Script retrieval}
+\subsubsubsection{Script retrieval}
 A true story understanding system would possess an immense number of scripts, and so we'll need a sophisticated retrieval system to find the scripts evoked by stories. We also need to be able to ``match'' the stories with the retrieved scripts, both to confirm that we've retrieved an appropriate script and to facilitate our ultimate goal of inference and understanding.% \footnote{This is also a problem for Minsky's frames, as I discuss in Section~\ref{sec:minsky}.}
 
 As both the story being understood \footnote{It is assumed here that some natural language text, or some set of observations, has already been converted into such a form.} and the atomic elements of scripts are ultimately composed of many conceptualizations, this script model makes use of some conceptualizations over others in retrieving scripts. We call these retrieval-oriented conceptualizations \textit{headers}, and they come in four forms:
@@ -53,11 +53,11 @@ As both the story being understood \footnote{It is assumed here that some natura
 \fi
 
 
-\subsubsection{Script interaction}
+\subsubsection{Script Interaction}
 
 Scripts are not self-contained: many scripts can be instantiated at the same time, and may co-refer to actors, props, locations, and even the same actions. Scripts may also interfere with one another: the authors give the example story \textit{``John was eating in a dining car. The train stopped short. The soup spilled.''}. Imagine that the first sentence is part of a restaurant script, and the second is part of a train script. Even if we infer that the stopping-short event from the train script caused the soup spilling event, we still need to ``tell'' the restaurant that it cannot proceed normally. To identify which scripts need to be informed of which events, we can make use of existing knowledge (soup is a food, and can thus evoke our instance of the restaurant script), co-reference (we might know of an existing soup in the restaurant script instance), and future inputs (if John then exclaims something to the waiter about soup, it facilitates a co-reference interaction). The authors explore many types and specific examples of script interaction, all of which boil down to the essential issues of determining when (or whether) certain script instances begin or end---this is especially an issue when scripts can be interrupted---and ambiguous matching of conceptualizations into one of multiple active script instances. Complete solutions to these fundamental issues are not engineered in the book; it would be largely up to an implementer of this system to solve them.
 
-\subsection{Discussion}
+\subsubsection{Discussion}
 This book presents one of the first serious attempts to lay out a framework for situation understanding based on generalized scripts. The scripts' underlying causal chains relate them naturally to plans, and the simplicity of the CD theory action/state representation lends itself to computational approaches. However, there are a few issues with the approach.
 
 The CD theory conceptualizations, especially the 11 primitive actions, are a cumbersome representation for many complex verbs, and the task of breaking natural vocabularies down into these primitives is likely intractable. What's more, the small set of specific primitives they propose is probably insufficient: \citet{lytinen1992conceptual} notes, twenty years after conceptual dependency theory was introduced \citep{schank1969conceptual}, that ``no one seems to take seriously the notion that such a small set of representational elements covers the conceptual base that underlies all natural languages.''

@@ -1,20 +1,19 @@
-
-\subsection{GENESIS}
+\section{GENESIS}
 \label{sec:genesis}
 
 Most approaches to schema acquisition have used statistical extraction models to cope with the vast amount of natural language text needed for automatic generalization. However, the GENESIS system, first presented in Ray Mooney's dissertation \citep{mooney:phd88}, attacks the schema learning problem symbolically, generalizing causal, structured schemas  without the need for a huge number of examples.
 %Automatic schema acquisition work was nearly non-existent before the meteoric rise of machine learning methods inspired by developments in backpropagation \citep{rumelhart1986}. In fact, the GENESIS system \citep{mooneydejong1985,mooney90} seems to be the only non-statistical attack on the problem before the ``ML spring'' following the AI winter.
 
-GENESIS generalizes schemas \footnote{I am hesitant, unlike these authors, to use the Greek pluralization rule for the word \textit{schema}.} from single narratives using \textit{explanation-based learning} \citep{mitchell1986}, a symbolic learning method which uses a set of symbolic rules to ``explain'' observed actions, thereby offering clues for what is generalizable without compromising the underlying teleology of the narrative. \footnote{As \citep{mooney90} notes, explanation-based learning can be viewed in a dichotomy with \textit{similarity-based learning}, which depends on a large number of examples and a similarity metric to learn generalized structures---neural networks and other statistical schema learning approaches, to be detailed in further subsections of this chapter, are examples of this latter end of the dichotomy.}
+GENESIS generalizes schemas \footnote{I am hesitant, unlike these authors, to use the Greek pluralization rule for the word \textit{schema}.} from single narratives using \textit{explanation-based learning} \citep{mitchell1986}, a symbolic learning method which uses a set of symbolic rules to ``explain'' observed actions, thereby offering clues for what is generalizable without compromising the underlying teleology of the narrative. \footnote{As \citep{mooney90} notes, explanation-based learning can be viewed in a dichotomy with \textit{similarity-based learning}, which depends on a large number of examples and a similarity metric to learn generalized structures---neural networks and other statistical schema learning approaches, to be detailed in further sections of this chapter, are examples of this latter end of the dichotomy.}
 
-\subsubsection{Outline of the Approach}
+\subsection{Outline of the Approach}
 \label{sec:genesisapproach}
 
 At its core, GENESIS is a cyclic combination of classical planning and pre-existing schema matching techniques. A schema can only be used to interpret a teleological sequence of actions (i.e. a \textit{plan}) if that schema is already known. Absent any relevant schemas, GENESIS resorts to classical situation planning techniques, manipulating an internal logical representation of a story to generate a plan, composed of known operations, that aligns with the character's actions in the story. If such a story-explaining plan is found, it is then analyzed, and novel action sequences necessary to achieve important goals are generalized and stored as schemas.
 
 The technique of storing plans to enable ``sub-sequence'' analysis is not new: the STRIPS problem solver system stored generalized plans in just such a way using \textit{triangle tables}: data structures that allowed efficient determination of the next applicable step of a multi-step plan given an arbitrary world state \citep{fikes1972}. In fact, this similarity is the result of direct inspiration: GENESIS's internal logical representation and planning algorithm are modified versions of those used in STRIPS.
 
-\subsubsection{Knowledge Representation}
+\subsection{Knowledge Representation}
 
 GENESIS first converts stories into an internal knowledge representation, whose ontology comprises \textit{object}, \textit{attribute}, \textit{state}, and \textit{action} classes. \textit{Objects} are atomic, symbolic representations of entities in the planning domain, e.g. \textit{sunrise} or \textit{Jacob}. Note that these are not necessarily \textit{physical} entities, but rather, the entire ``domain'' of the logical system in which the planning inferences occur. \textit{Attributes} are ``rules'' about objects that are unaffected by actions. \textit{States} are conjunctions of temporal propositions representing the world at a given time. \textit{Actions} are temporal predicates endowed with axioms whereby associated \textit{preconditions} are implied by the action predicate's truth at some time, associated \textit{postconditions} are implied at some time after the action, and associated \textit{motivations} for the action are implied of relevant entities by the action's truth at some time.
 
@@ -38,13 +37,13 @@ Illegal(?d(?b))&&&\\
 \label{fig:genesisaction}
 \end{figure}
 
-\subsubsection{The Planning Process}
+\subsection{The Planning Process}
 
-Because GENESIS is a schema learning system, it deals primarily with \textit{action}-type knowledge; an example action, taken from \citep{mooney90}, is shown in Figure~\vref{fig:genesisaction}. If GENESIS encounters an action in a story that does not match an existing (or instantiable) schema, it will attempt to deduce a teleology, via planning, to explain the action with past actions. The unknown action's preconditions are taken as goals, and a backward-chaining inference process begins on the Horn clauses in the knowledge base at the action's time: the system must prove that the preconditions and motivations of the unknown action were made true by the postconditions of past actions.
+Because GENESIS is a schema learning system, it deals primarily with \textit{action}-type knowledge; an example action, taken from \citep{mooney90}, is shown in Figure~\ref{fig:genesisaction}. If GENESIS encounters an action in a story that does not match an existing (or instantiable) schema, it will attempt to deduce a teleology, via planning, to explain the action with past actions. The unknown action's preconditions are taken as goals, and a backward-chaining inference process begins on the Horn clauses in the knowledge base at the action's time: the system must prove that the preconditions and motivations of the unknown action were made true by the postconditions of past actions.
 
 The authors note that motivations are seldom made explicit, and so they manually encode prior \textit{thematic goals} \footnote{(defined by \citep{schankandabelson} as atomic goals, derived from atomic needs and wants, which require no explanation)} into GENESIS. An example of a thematic goal, taken from their paper, is a police officer's desire to arrest lawbreakers: \texttt{Arrested(?b,?d,?a) $\land$ Occupation(?a, cop) $\implies$ ThemeGoalMet(?a, Arrested(?b, ?d, ?a))}.
 
-\subsubsection{Schema Generalization}
+\subsection{Schema Generalization}
 
 Once the process of achieving a goal has been explained, GENESIS uses three criteria to determine whether to generalize the explanation into a schema, in order to keep the massive number of possible generalizations to a useful minimum. These criteria are designed to encourage the generation of novel ``end-to-end'' schemas that one character can undertake as composite actions in order to achieve an inherently useful and interesting goal. They are:
 
@@ -74,132 +73,19 @@ The conditions for \texttt{PushFromRoom2ToRoom1} do, in fact, require that the r
 
 It turns out that the algorithm for doing this involves unifying all possible pairs well-formed formulas (WFFs) in the logical representation using the unification algorithm given by \citep{robinson1965machine}. The resulting unifications (which can be thought of as bindings, or substitution maps) are then applied to the entire explanation structure. Once this is done, GENESIS has produced a generalized schema for doing ``the kind of thing'' a character did in the story to achieve their goal.
 
-\subsubsection{Example Generalization}
+\subsection{Example Generalization}
 \label{sec:genesiseg}
 
 The authors present a ``case study'' of GENESIS wherein a ``learning narrative'', which described a schema instance in great detail, was presented to the system, followed by a ``test narrative'', which described another instance of the same schema but left out many important actions. The system was able to apply the generalized schema it obtained from the learning narrative to the test narrative, constructing an explanation from very sparse information.
 
-To show that the test narrative was insufficient for question-answering purposes, the authors published the following interaction with GENESIS on the basis of their input (the test narrative). This is shown in Figure~\vref{fig:genesisqa1}. After presenting it with the learning narrative (Figure~\vref{fig:genesisqa2}), it generalized a schema, and applied that schema to the test narrative to fill in the story details (Figure~\vref{fig:genesisqa3}).
+To show that the test narrative was insufficient for question-answering purposes, the authors published the following interaction with GENESIS on the basis of their input (the test narrative). This is shown in Figure~\ref{fig:genesisqa1} of Appendix~\ref{app:genesisqa}. After presenting it with the learning narrative (Figure~\ref{fig:genesisqa2}), it generalized a schema, and applied that schema to the test narrative to fill in the story details (Figure~\ref{fig:genesisqa3}).
 
-\lstset{language=Lisp,
-    morekeywords={Define, a, inherits-from, as, with, a-set, one-of, IF-NEEDED, IF-ADDED, SELF, cardinality, auto},
-    basicstyle=\ttfamily\footnotesize,
-    stringstyle=\ttfamily\color{black},
-    commentstyle=\ttfamily\color{black},
-    keywordstyle=\ttfamily\color{black},
-    identifierstyle=\texttt,
-    tabsize=2
-    }
-\begin{figure}
-    \begin{lstlisting}[frame=single]
-Input: Alice was at a corner wearing tight blue jeans.
-   Stan told Alice if she had sex with him then he would give her $75.
-   Stan went to jail.
-    
-Ready for questions:
+\subsection{Discussion}
 
-> Paraphrase.
-Stan solicited Alice's sexual favors for $75. Stan was put in a jail.
-
-> Why did Stan tell Alice if she had sex with him then he would give
-   her money?
-Because Stan believed that Alice was a prostitute and because Stan
-   needed to have sex.
-
-> Who arrested Stan?
-Answer unknown.
-    \end{lstlisting}
-\caption{An unproductive Q\&A session with GENESIS after it had only seen the sparse test narrative.}
-\label{fig:genesisqa1}
-\end{figure}
-
-\begin{figure}
-    \begin{lstlisting}[frame=single,escapechar=ß]
-Input: Jane is a policewoman.
-   She dressed in a short red skirt and went to a corner. 
-   Bob approached the corner and told her if she had sex with
-      him then he would give her $50.
-   Jane arrested Bob for soliciting.
-   Bob is Mary's husband and he told her that Jane entrapped him.
-
-Thematic goal achieved: Jane is happy that Bob is under arrest for
-solictingß\protect\footnotemarkß Jane's sexual favors for the $50.
-Explanation suitable for generalization.
-Pruning...
-Generalizing...
-Packaging...
-Creating New Schema: (DressSolicitArrest ?b9 ?c2 ?s2 ?s4 ?I4 ?a9 ?c3)
-?b9 is not equal to ?a9.
-?b9 is a person. ?c2 is an apparel. ?b9 has ?c2. ?b9 puts on ?c2.
-?s2 is a location. ?I4 is a corner. ?b9 is at ?s2.
-?b9 goes from ?s2 to ?14. ?a9 is a person. ?s4 is a location.
-?a9 is at ?s4. ?s9 goes from ?s4 to ?14. ?c3 is money.
-?a9 needs to have sex. ?c2 is sexy.
-?a9 solicits ?b9’s sexual favors for ?c3. ?b9 is a police officer.
-?b9 arrests ?a9 for soliciting ?b9’s sexual favors for ?c3.
-Having: ?b9 put on ?c2. suggests DressSolicitArrest
-Having: ?a9 solicited ?b9's sexual favors for ?c3. suggestß\protect\footnotemarkß
-   DressSolicitArrest
-Having: ?b9 arrested ?a9 for soliciting ?b9’s sexual favors for ?c3,
-   suggest
-DressSolicitArrest
-Unknown word ‘?b9 entrap ?a9’ refers to DressSolicitArrest
-Ready for questions:
-> Paraphrase.
-Jane had a skirt. Jane put on a skirt. Jane was at some place.
-Jane went to a corner. Bob was at some place. Bob went to the corner.
-Bob needed to have sex. The skirt was sexy.
-Bob solicited Jane's sexual favors for $50. Jane was a police officer.
-Jane arrested Bob for soliciting Jane’s sexual favors for the $50.
-> Why did Bob go to the corner?
-So Bob could solicit Jane’s sexual favors for the $50.
-> Why did Bob solicit Jane’s sexual favors?
-Because Bob believed that Jane was a prostitute and because Bob
-needed to have sex. .
-> Why did Jane arrest Bob?
-Because Jane believed that Bob solicited Jane’s sexual favors for the
-$50 and because Jane was a police officer.
-    \end{lstlisting}
-\caption{A schema derivation and Q\&A session with GENESIS after it had seen the learning narrative.}
-\label{fig:genesisqa2}
-\end{figure}
-
-\begin{figure}
-    \begin{lstlisting}[frame=single]
-Input: Alice was at a corner wearing tight blue jeans.
-Stan told Alice if she had sex with him then he would give her $75.
-Stan went to jail.
-Thematic goal achieved: Alice is happy that Stan is under arrest for
-   soliciting Alice’s sexual favors for the $75.
-Ready for questions:
-> Paraphrase.
-Alice had a pair of jeans. Alice put on the pair of jeans.
-Alice was at some place. Alice went to a corner.
-Stan was at some place. Stan went to the corner.
-Stan needed to have sex. The pair of jeans were sexy.
-Stan solicited Alice's sexual favors for $75.
-Alice was a police officer.
-Alice arrested Stan for soliciting Alice’s sexual favors for the $75.
-> Who arrested Stan?
-Alice arrested Stan for soliciting Alice’s sexual favors for the $75.
-> Why did Alice arrest Stan?
-Because Alice was a police officer and because Alice believed that
-Stan solicited Alice’s sexual favors for the $75. 
-    \end{lstlisting}
-\caption{A much more productive Q\&A session regarding the test narrative with GENESIS after it had formed a schema from the learning narrative.}
-\label{fig:genesisqa3}
-\end{figure}
-
-\addtocounter{footnote}{-2}
- \stepcounter{footnote}\footnotetext{[sic]}
- \stepcounter{footnote}\footnotetext{Also [sic], and somewhat suspicious---why would this inconsistency with ``suggests'' on the previous line occur in what is ostensibly the literal output?}
-
-\subsubsection{Discussion}
-
-The generalized schema shown in figure~\vref{fig:genesisqa2} seems quite comprehensive: in addition to ``type'' predicates on its entities, e.g. \texttt{?b9 is a person}, it also relates those entities via actions, e.g. \texttt{?s9 goes from ?s4 to ?l4}. Furthermore, the actions are not simply subject-verb-object triples: they specify pre- and post-conditions, as well as motivations, all of which contribute to the complexity and goal-orientedness of the final schema. However, I do want to note some important concerns related to the scalability of its schema learning.
+The generalized schema shown in figure~\ref{fig:genesisqa2} seems quite comprehensive: in addition to ``type'' predicates on its entities, e.g. \texttt{?b9 is a person}, it also relates those entities via actions, e.g. \texttt{?s9 goes from ?s4 to ?l4}. Furthermore, the actions are not simply subject-verb-object triples: they specify pre- and post-conditions, as well as motivations, all of which contribute to the complexity and goal-orientedness of the final schema. However, I do want to note some important concerns related to the scalability of its schema learning.
 
 The stories that GENESIS learned from were artificial, containing very little extraneous detail and really instantiating only one substantial schema. Real stories often have many simultaneously active schemas, as well as details and stylistic artifacts that complicate schema recognition. GENESIS's causal explanation-based generalization does seemingly deal with some of these issues, but its efficacy on real, ``dirty'' stories has not been demonstrated at scale.
 
 The causal explanations that GENESIS relies on for schema construction also rely on a significant corpus of hand-generated actions, which specify preconditions, postconditions, and goals. The STRIPS-style, first-order predicate logic these actions are written in also lacks the expressive power of natural language. This all limits GENESIS rather severely: without a complete understanding of the world-meaning of every action verb it encounters, GENESIS is unable to generalize schemas from natural language. This sort of complete understanding would be very difficult to give a schema learning system \textit{a priori}.
 
-GENESIS (subsection~\vref{sec:genesis}) was a rather compelling attack on the task of schema learning, but I do think that these issues ultimately lead to poor scalability.
+GENESIS (section~\ref{sec:genesis}) was a rather compelling attack on the task of schema learning, but I do think that these issues ultimately lead to poor scalability.

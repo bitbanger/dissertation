@@ -1,0 +1,116 @@
+\chapter{Q\&A Sessions for GENESIS}
+\label{app:genesisqa}
+%\UseRawInputEncoding
+
+\lstset{language=Lisp,
+    morekeywords={Define, a, inherits-from, as, with, a-set, one-of, IF-NEEDED, IF-ADDED, SELF, cardinality, auto},
+    basicstyle=\ttfamily\tiny,
+    stringstyle=\ttfamily\color{black},
+    commentstyle=\ttfamily\color{black},
+    keywordstyle=\ttfamily\color{black},
+    identifierstyle=\texttt,
+    tabsize=2
+    }
+\begin{figure}
+    \begin{lstlisting}[frame=single]
+Input: Alice was at a corner wearing tight blue jeans.
+   Stan told Alice if she had sex with him then he would give her $75.
+   Stan went to jail.
+    
+Ready for questions:
+
+> Paraphrase.
+Stan solicited Alice's sexual favors for $75. Stan was put in a jail.
+
+> Why did Stan tell Alice if she had sex with him then he would give
+   her money?
+Because Stan believed that Alice was a prostitute and because Stan
+   needed to have sex.
+
+> Who arrested Stan?
+Answer unknown.
+    \end{lstlisting}
+\caption{An unproductive Q\&A session with GENESIS after it had only seen the sparse test narrative.}
+\label{fig:genesisqa1}
+\end{figure}
+
+\begin{figure}
+    \begin{lstlisting}[frame=single,escapechar=ß]
+Input: Jane is a policewoman.
+   She dressed in a short red skirt and went to a corner. 
+   Bob approached the corner and told her if she had sex with
+      him then he would give her $50.
+   Jane arrested Bob for soliciting.
+   Bob is Mary's husband and he told her that Jane entrapped him.
+
+Thematic goal achieved: Jane is happy that Bob is under arrest for
+solictingß\protect\footnotemarkß Jane's sexual favors for the $50.
+Explanation suitable for generalization.
+Pruning...
+Generalizing...
+Packaging...
+Creating New Schema: (DressSolicitArrest ?b9 ?c2 ?s2 ?s4 ?I4 ?a9 ?c3)
+?b9 is not equal to ?a9.
+?b9 is a person. ?c2 is an apparel. ?b9 has ?c2. ?b9 puts on ?c2.
+?s2 is a location. ?I4 is a corner. ?b9 is at ?s2.
+?b9 goes from ?s2 to ?14. ?a9 is a person. ?s4 is a location.
+?a9 is at ?s4. ?s9 goes from ?s4 to ?14. ?c3 is money.
+?a9 needs to have sex. ?c2 is sexy.
+?a9 solicits ?b9's sexual favors for ?c3. ?b9 is a police officer.
+?b9 arrests ?a9 for soliciting ?b9's sexual favors for ?c3.
+Having: ?b9 put on ?c2. suggests DressSolicitArrest
+Having: ?a9 solicited ?b9's sexual favors for ?c3. suggestß\protect\footnotemarkß
+   DressSolicitArrest
+Having: ?b9 arrested ?a9 for soliciting ?b9's sexual favors for ?c3,
+   suggest
+DressSolicitArrest
+Unknown word `?b9 entrap ?a9' refers to DressSolicitArrest
+Ready for questions:
+> Paraphrase.
+Jane had a skirt. Jane put on a skirt. Jane was at some place.
+Jane went to a corner. Bob was at some place. Bob went to the corner.
+Bob needed to have sex. The skirt was sexy.
+Bob solicited Jane's sexual favors for $50. Jane was a police officer.
+Jane arrested Bob for soliciting Jane's sexual favors for the $50.
+> Why did Bob go to the corner?
+So Bob could solicit Jane's sexual favors for the $50.
+> Why did Bob solicit Jane's sexual favors?
+Because Bob believed that Jane was a prostitute and because Bob
+needed to have sex.
+> Why did Jane arrest Bob?
+Because Jane believed that Bob solicited Jane's sexual favors for the
+$50 and because Jane was a police officer.
+    \end{lstlisting}
+\caption{A schema derivation and Q\&A session with GENESIS after it had seen the learning narrative.}
+\label{fig:genesisqa2}
+\end{figure}
+
+\begin{figure}
+    \begin{lstlisting}[frame=single]
+Input: Alice was at a corner wearing tight blue jeans.
+Stan told Alice if she had sex with him then he would give her $75.
+Stan went to jail.
+Thematic goal achieved: Alice is happy that Stan is under arrest for
+   soliciting Alice's sexual favors for the $75.
+Ready for questions:
+> Paraphrase.
+Alice had a pair of jeans. Alice put on the pair of jeans.
+Alice was at some place. Alice went to a corner.
+Stan was at some place. Stan went to the corner.
+Stan needed to have sex. The pair of jeans were sexy.
+Stan solicited Alice's sexual favors for $75.
+Alice was a police officer.
+Alice arrested Stan for soliciting Alice's sexual favors for the $75.
+> Who arrested Stan?
+Alice arrested Stan for soliciting Alice's sexual favors for the $75.
+> Why did Alice arrest Stan?
+Because Alice was a police officer and because Alice believed that
+Stan solicited Alice's sexual favors for the $75. 
+    \end{lstlisting}
+\caption{A much more productive Q\&A session regarding the test narrative with GENESIS after it had formed a schema from the learning narrative.}
+\label{fig:genesisqa3}
+\end{figure}
+
+\addtocounter{footnote}{-2}
+ \stepcounter{footnote}\footnotetext{[sic]}
+ \stepcounter{footnote}\footnotetext{Also [sic], and somewhat suspicious---why would this inconsistency with ``suggests'' on the previous line occur in what is ostensibly the literal output?}

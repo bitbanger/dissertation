@@ -57,7 +57,7 @@
 \usepackage{epigraph}
 \renewcommand{\epigraphflush}{center}
 \setlength{\epigraphrule}{0pt}
-\setlength{\epigraphwidth}{0.6\textwidth}
+\setlength{\epigraphwidth}{0.75\textwidth}
 
 \tikzset{
     state/.style={
@@ -103,6 +103,15 @@ keywordstyle=\ttfamily\color{stringcolor},
 identifierstyle=\texttt,
 tabsize=2
 }
+\lstdefinestyle{ELtiny}{
+morekeywords={},
+basicstyle=\ttfamily\footnotesize,
+stringstyle=\ttfamily\color{stringcolor},
+commentstyle=\ttfamily\color{commentcolor},
+keywordstyle=\ttfamily\color{stringcolor},
+identifierstyle=\texttt,
+tabsize=2
+}
 \lstset{keepspaces=true}
 \colorlet{stringcolor}{red}
 \colorlet{commentcolor}{black}
@@ -128,7 +137,7 @@ tabsize=2
 \listoftables
 \listoffigures
 
-\include{CH1_intro/intro}
+\include{CH1_intro/CH1_main}
 
 \include{CH2_el/CH2_main}
 
@@ -139,7 +148,7 @@ tabsize=2
 
 \include{CH5_eval/CH5_main}
 
-%\include{conclusion}
+\include{conclusion}
 
 \bibliographystyle{plainnat}
 \bibliography{references}

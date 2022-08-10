@@ -12,7 +12,7 @@ We refer to any schema instance with one or more bound variables as a \textit{ma
     \label{fig:match_transformation}
 \end{figure}
 
-More formally, given a set of story ELFs $\Phi$ and a set of schema formulas $\Psi$, we define a match as a set of edges between elements of $\Phi$ and $\Psi$ such that no element of either touches more than one edge. These edges represent EL formula unification operations $\sigma(\phi, \psi) = (b_{\phi,\psi}, s_{\phi,\psi})$, where $b_{\phi,\psi}$ is the variable binding function produced by the unification, and $s_{\phi,\psi}$ is the score of the unification. Another constraint exists on valid matches: each variable $v$ in the schema must be bound to at most one unique value across \textit{all} variable binding functions $b_{\phi,\psi}$ for all unifications. The problem of selecting a valid set of edges with maximal weight is $\mathrm{NP}$-hard, as shown by the following reduction from the weighted maximum clique (WMC) problem:
+More formally, given a set of story ELFs $\Phi$ and a set of schema formulas $\Psi$, we define a match as a set of edges between elements of $\Phi$ and $\Psi$ such that no element of either touches more than one edge. These edges represent EL formula unification operations $\sigma(\phi, \psi) = (b_{\phi,\psi}, s_{\phi,\psi})$, where $b_{\phi,\psi}$ is the variable binding function produced by the unification, and $s_{\phi,\psi}$ is the score of the unification. Another constraint exists on valid matches: each variable $v$ in the schema must be bound to at most one unique value across \textit{all} variable binding functions $b_{\phi,\psi}$ for all unifications. We show that the problem of selecting a valid set of unification edges $E \subset \Phi \times \Psi$ with maximal weight $\sum_{(\phi,\psi) \in E} s_{\phi,\psi}$ is $\mathrm{NP}$-hard with the following reduction from the weighted maximum clique (WMC) problem:
 
 \newtheorem{theorem}{Theorem}
 \begin{theorem}
@@ -20,12 +20,28 @@ More formally, given a set of story ELFs $\Phi$ and a set of schema formulas $\P
 Optimal story-schema matching is $\mathrm{NP}$-hard.
 \end{theorem}
 \begin{proof}
-Let the graph input to the WMC problem be $G = (V={v_{0}, v_{1}, ..., v_{|V|}},E)$ with weight function $w : V \to \mathbb{R}$. For each vertex $v_{i}$, we construct a pair of EL propositions $\text{P}_{i}(v_{i},v_{a},v_{b},...)$ and $\text{P}_{i}(1,0,0,...)$ where $v_{a},v_{b},...$ is a sequence containing all vertices \textit{not} sharing an edge with $v_{i}$. An illustrated example of this transformation is shown in Figure~\ref{fig:match_transformation}. We also define the EL unification score function to be $s_{\phi_{v_{i}},\psi_{v_{i}}} = w(v_{i})$. An optimal solution to the schema matching problem with these propositions as input will include only proposition unification pairs whose values for all bound variables are mutually compatible. Because the pair of propositions corresponding to each vertex assigns the value $1$ to its own vertex's variable, and all unconnected vertices are assigned the contradictory value $0$, no two proposition unifications for unconnected vertices may co-exist in any solution, meaning the solution will correspond to a clique. And because the solution will have maximal score, it will correspond to the clique with maximal weight in the original graph.
+Let the graph input to the WMC problem be $G = (V={v_{0}, v_{1}, ..., v_{|V|}},E)$ with weight function $w : V \to \mathbb{R}$.
+
+For each vertex $v_{i}$, we construct a pair of EL propositions $\phi_{i} = \text{P}_{i}(1,0,0,...)$ and $\psi_{i} = \text{P}_{i}(v_{i},v_{a},v_{b},...)$ where $v_{a},v_{b},...$ is a sequence containing all vertices \textit{not} sharing an edge with $v_{i}$, each of which is aligned with a $0$ in the corresponding proposition.
+$\phi_{i}$ and $\psi_{i}$ can respectively be called the \textit{story} and \textit{schema} propositions.
+An illustrated example of this transformation is shown in Figure~\ref{fig:match_transformation}.
+
+Because the predicate $P_{i}$ for both propositions is the same, and unique to $v_{i}$, each of the two propositions may only unify with the other, or with nothing.
+
+We also define the EL unification score function to be $s_{\phi_{i},\psi_{i}} = w(v_{i})$.
+
+An optimal solution to the schema matching problem with these propositions as input will include only proposition unification pairs whose values for all bound variables are mutually compatible.
+
+Because the pair of propositions corresponding to each vertex assigns the value $1$ to its own vertex's variable, and all unconnected vertices are assigned the contradictory value $0$, no two proposition unifications for unconnected vertices may co-exist in any solution, meaning the solution will correspond to a clique.
+
+And because the solution will have maximal score, it will correspond to the clique with maximal weight in the original graph.
 \end{proof}
 
 Because the schema matching problem is $\mathrm{NP}$-hard, we need an efficient approximation for practical use. For our schema inference experiment (Section~\ref{sec:inf_eval}), we implement a basic matching algorithm that operates given an EL parse of a story and a pre-selected candidate schema (Algorithm~\ref{alg:matching}). The algorithm reduces the space of possible alignments and then samples the space several times, returning the best found solution. The simplicity of that algorithm is due to the limited scale of the experiment. Schema candidate selection becomes difficult as the corpus of learned schemas grows large, but with only dozens of learned schemas at this stage in the project, our corpus is not yet large enough to perform meaningful experiments with large-scale candidate selection. Similarly, the schemas learned so far have been individually quite simple, with at most one nesting level and a handful of formulas each. Our current matching algorithm is only intended to deal with matching stories to schemas of that scale, and as such will likely require substantial refinement as learned schemas grow in complexity. The basic matching algorithm was also developed using only a small development corpus of three learned schemas, resulting in largely intuited heuristics, such as its scoring function, that have yet to be tested at scale. Nevertheless, we include here a description of the basic schema matching algorithm used in our inference experiments.
 
 \subsection{Basic Matching Algorithm}
+\label{sec:basic_algo}
+
 Using EL formula unification as a primitive, we implemented basic schema matching (Algorithm~\ref{alg:matching}) by iterating through the formulas in an EL parse of a story, matching each formula to any schema formula retrieved as a candidate, and applying the bindings to the schema. When the story has been fully iterated through, or all schema variables have been bound, the match is complete.
 Algorithm~\ref{alg:matching} does not account for nested schemas; nested schemas can be ``flattened'', however, with all of their formulas placed inside the nesting schema, to allow the matching algorithm to match at all nesting levels without modification.
 Because the order of formula matches can affect what variables are bound, and therefore which formulas may be subsequently matched, we randomly permute story formulas and unify them, in the randomized order, with schema formulas.
@@ -66,6 +82,7 @@ When shuffling the story formulas, we also independently shuffle the episodic fo
 \end{algorithm}
 
 \subsubsection{Scoring}
+\label{sec:scoring}
 When a schema is matched to a story, some constraints may be broken; this is a natural part of the learning process. A schema for a cow eating grass matched to a story about a dog eating grass violates the cow constraint on a participating entity, but is a valuable source of knowledge if properly generalized. On the other hand, too many broken constraints are indicative of a poor match between a schema candidate and a story.
 Schema matches are heuristically scored by counting satisfied constraints, weighted by constraint type.
 Confirmed role constraints are worth half as many points as confirmed step events.

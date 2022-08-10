@@ -330,13 +330,6 @@ acmid = {981997},
 publisher = {Association for Computational Linguistics},
 address = {Stroudsburg, PA, USA},
 }
-@inproceedings{lawleykimschubert2019,
-title = "Towards Natural Language Story Understanding with Rich Logical Schemas",
-author = {Lawley, Lane and Kim, Gene L. and Schubert, Lenhart},
-booktitle = "Proceedings of the IWCS workshop on Natural Language and Computer Science",
-year = "2019",
-url = {https://cs.rochester.edu/~llawley/papers/nlcs_schema_paper.pdf}
-}
 @inproceedings{kim2016high,
 title={High-fidelity lexical axiom construction from verb glosses},
 author={Kim, Gene and Schubert, Lenhart},
@@ -3425,10 +3418,31 @@ YEAR   = {2017},
 Note   = {To appear}
 }
 @inproceedings{Lawley2021LearningGE,
-title={Learning General Event Schemas with Episodic Logic},
-author={Lane Lawley and Benjamin Kuehnert and Lenhart K. Schubert},
-booktitle={NALOMA},
-year={2021}
+    title = "Learning General Event Schemas with Episodic Logic",
+    author = "Lawley, Lane  and
+      Kuehnert, Benjamin  and
+      Schubert, Lenhart",
+    booktitle = "Proceedings of the 1st and 2nd Workshops on Natural Logic Meets Machine Learning (NALOMA)",
+    month = jun,
+    year = "2021",
+    address = "Groningen, the Netherlands (online)",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.naloma-1.1",
+    pages = "1--6",
+}
+@inproceedings{lawleykimschubert2019,
+    title = "Towards Natural Language Story Understanding with Rich Logical Schemas",
+    author = "Lawley, Lane  and
+      Kim, Gene Louis  and
+      Schubert, Lenhart",
+    booktitle = "Proceedings of the Sixth Workshop on Natural Language and Computer Science",
+    month = may,
+    year = "2019",
+    address = "Gothenburg, Sweden",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/W19-1102",
+    doi = "10.18653/v1/W19-1102",
+    pages = "11--22",
 }
 @misc{gpt-j,
 author = {Wang, Ben and Komatsuzaki, Aran},
@@ -3475,7 +3489,8 @@ pages = "38--45"
   author={Gibson, Erin and Lawley, Lane},
   booktitle={The International FLAIRS Conference Proceedings},
   volume={35},
-  year={2022}
+  month=may,
+  year={2022},
 }
 @inproceedings{schubert-2014-treebank,
     title = "From Treebank Parses to Episodic Logic and Commonsense Inference",
@@ -3698,4 +3713,67 @@ abstract = {I argue in favor of associating situations (events, episodes, eventu
 booktitle = {Logic-Based Artificial Intelligence},
 pages = {407–439},
 numpages = {33}
+}
+@article{jsbvgaes,
+author = {Lane Lawley and Will Frey and Patrick Mullen and Alexander D. Wissner-Gross},
+title ={Joint sparsity-biased variational graph autoencoders},
+journal = {The Journal of Defense Modeling and Simulation},
+published = {SAGE Publications},
+volume = {18},
+number = {3},
+pages = {239-246},
+month = mar,
+year = {2021},
+doi = {10.1177/1548512921996828},
+URL = {https://doi.org/10.1177/1548512921996828},
+eprint = {https://doi.org/10.1177/1548512921996828},
+}
+@inproceedings{lomeproto,
+    title = "Logical Story Representations via {F}rame{N}et + Semantic Parsing",
+    author = "Lawley, Lane  and
+      Schubert, Lenhart",
+    booktitle = "Proceedings of the Workshop on Dimensions of Meaning: Distributional and Curated Semantics (DistCurate 2022)",
+    month = jul,
+    year = "2022",
+    address = "Seattle, Washington",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.distcurate-1.3",
+    doi = "10.18653/v1/2022.distcurate-1.3",
+    pages = "19--23",
+}
+@inproceedings{nesl,
+    title = "Mining Logical Event Schemas From Pre-Trained Language Models",
+    author = "Lawley, Lane  and
+      Schubert, Lenhart",
+    booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics: Student Research Workshop",
+    month = may,
+    year = "2022",
+    address = "Dublin, Ireland",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.acl-srw.25",
+    doi = "10.18653/v1/2022.acl-srw.25",
+    pages = "332--345",
+}
+@inproceedings{allennlp-coref,
+    title = "End-to-end Neural Coreference Resolution",
+    author = "Lee, Kenton  and
+      He, Luheng  and
+      Lewis, Mike  and
+      Zettlemoyer, Luke",
+    booktitle = "Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing",
+    month = sep,
+    year = "2017",
+    address = "Copenhagen, Denmark",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D17-1018",
+    doi = "10.18653/v1/D17-1018",
+    pages = "188--197",
+    abstract = "We introduce the first end-to-end coreference resolution model and show that it significantly outperforms all previous work without using a syntactic parser or hand-engineered mention detector. The key idea is to directly consider all spans in a document as potential mentions and learn distributions over possible antecedents for each. The model computes span embeddings that combine context-dependent boundary representations with a head-finding attention mechanism. It is trained to maximize the marginal likelihood of gold antecedent spans from coreference clusters and is factored to enable aggressive pruning of potential mentions. Experiments demonstrate state-of-the-art performance, with a gain of 1.5 F1 on the OntoNotes benchmark and by 3.1 F1 using a 5-model ensemble, despite the fact that this is the first approach to be successfully trained with no external resources.",
+}
+@inproceedings{weber2022human,
+  title={Human Schema Curation via Causal Association Rule Mining},
+  author={Weber, Noah and Belyy, Anton and Holzenberger, Nils and Rudingerb, Rachel and Van Durmea, Benjamin},
+  booktitle={Proceedings of the 16th Linguistic Annotation Workshop (LAW-XVI)@ LREC},
+  pages={139--150},
+  year={2022}
 }

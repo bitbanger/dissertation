@@ -1,7 +1,7 @@
 \section{EL Schemas and Formal Semantics}
 \label{sec:formal_semantics}
 
-\epigraph{\textit{...logical validity is not a guarantee of truth.}}{---David Foster Wallace, \textit{Infinite Jest}}
+%\epigraph{\textit{...logical validity is not a guarantee of truth.}}{---David Foster Wallace, \textit{Infinite Jest}}
 
 As EL schemas are composed of EL formulas, it is tempting to attempt to specify their full semantics in the model-theoretic terms of EL semantics. It is important to note, however, that the semantics of schema \textit{use}---for matching, inference, and learning---are \textit{not} necessarily well-defined in terms of EL semantics. As an example, consider the decision of whether the invocation a schema $\mathcal{S}$ is ``confirmed'' in an observed story. Some subset of the schema's variables $v \subset vars(\mathcal{S})$ have been bound to individuals in the story, and some subset of the schema's step episodes $e \subset steps(\mathcal{S})$ have been matched to steps in the story. To confirm the invocation of $\mathcal{S}$ and infer the presence of its unobserved formulas, we must map $v$ and $e$ to a truth value in $\{0, 1\}$. Such a function is schema-dependent and can be extremely complex; it likely demands an external heuristic to be practically evaluable, and as such is not explicitly modeled in EL schema semantics. So, while the formulas in an EL schema are interpretable in EL semantics, we must bear in mind that the semantics of the wider schema \textit{system}---which includes matching, inference, and learning---are far more complex, and thus not represented explicitly in the schemas themselves.
 

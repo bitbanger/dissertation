@@ -181,7 +181,7 @@ In our formulation, the noun predicates of $a_{1},...,a_{n}$ are arranged into a
 \label{sec:schema_naming}
 
 After a schema has been learned, it needs a header proposition; if it is to be nested within another schema, this proposition will represent it as a step in that other schema. The selection of a single-predicate proposition to summarize an entire schema is a difficult task that requires holistic understanding of the contents of the schema. To simulate this understanding in an automated manner, we once again turn to GPT-J 6B, which excels at the related task of story summarization. In a few-shot, prompt-engineered setting, we use the language model to create a one-sentence summary of the schema, which we first verbalize using the symbolic verbalization method outlined in Section~\ref{sec:gpt-reverb}.
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \scalebox{0.75}{
     \begin{tabular}{l|l}

@@ -14,13 +14,15 @@ The header can be used to ``embed'' a schema as a step in another schema---in fa
 \end{figure}
 
 \subsection{Formulas and Sections}
+\label{sec:forms_secs}
 % Introduce formulas and discuss their piecewiseness
 % Introduce formula-section layout
 Schemas organize their constituent formulas in two types of sections: \textit{fluent} and \textit{nonfluent} sections.
 Nonfluent sections contain formulas that hold true regardless of time, and are marked by formula IDs beginning with exclamation marks.
 Such formulas include type constraints on entities (Section~\ref{sec:roles}), temporal relation predications on episodes (Section~\ref{sec:eprels}), and equality constraints on variables within subordinate schemas (Section~\ref{sec:scoping}).
 Fluent sections, on the other hand, contain formulas identified by variables starting with question marks; the truth value of these formulas is susceptible to change over time alone.
-Referring to the EL ontology in Figure~\ref{fig:el_ontology}, the semantic type of fluent predicates can be thought of as the more restrictive $(\mathcal{D}^{n} \rightarrow (\mathcal{M} \rightarrow \textbf{2}))$, rather than $(\mathcal{D}^{n} \rightarrow (\mathcal{S} \rightarrow \textbf{2}))$, as specific \textit{moments of time} ($\mathcal{M}$) are needed to determine truth value.
+%Referring to the EL ontology in Figure~\ref{fig:el_ontology}, the semantic type of fluent predicates can be thought of as the more restrictive $(\mathcal{D}^{n} \rightarrow (\mathcal{M} \rightarrow \textbf{2}))$, rather than $(\mathcal{D}^{n} \rightarrow (\mathcal{S} \rightarrow \textbf{2}))$, as specific \textit{moments of time} ($\mathcal{M}$) are needed to determine truth value.
+Referring to the EL ontology in Figure~\ref{fig:el_ontology}, the semantic type of fluent predicates can be thought of as $(\mathcal{D}^{n} \rightarrow (\mathcal{S'} \rightarrow \textbf{2}))$ , where $S'$ is a subset of situations whose elements temporally span only a single time point, as the predicate's truth value for given arguments may may vary from time point to time point.
 Formally, a fluent formula $\phi$ with episode ID \el{?E} is said to characterize its episode ID: ($\phi ** \texttt{?E}$).
 A non-fluent formula $\psi$, however, does not have an episode ID, as its truth value is not temporally constrained; instead, it is represented by a \textit{metavariable} \el{!M}, any occurrence of which in an EL formula may be equivalently \textit{substituted} with $\psi$.
 Metavariables also exist for the characterizations ($\phi$ ** \el{?E}) implied by fluent formulas; a corresponding metavariable \el{!E} is introduced as a substitution representative for each such atemporal characterization formula.

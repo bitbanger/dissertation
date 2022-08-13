@@ -5,6 +5,6 @@
 *.lof
 *.lot
 *.out
-*.pdf
+main.pdf
 *.toc
 .DS_Store

@@ -1,12 +1,12 @@
-\subsection{Unsupervised Learning of Narrative Event Chains}
+\section{Unsupervised Learning of Narrative Event Chains}
 \label{sec:chambers}
 
 One of the earlier influential papers on statistical script learning is \textit{Unsupervised Learning of Narrative Event Chains} \citep{chambers2008unsupervised}. This paper defined, and sought to learn, \textit{narrative event chains}: a set of events with a mutual ``protagonist'' and a partial temporal order. The events in the chains were modeled as 2-tuples of verbs and entities.
 
-\subsubsection{Event Model}
+\subsection{Event Model}
 The authors defined events as 2-tuples of of the form \textit{(event, dependency)}, where \textit{event} is a verb, and \textit{dependency} is an entity---the protagonist---as either the \textit{subject} or \textit{object} of the verb. This latter element of the tuple is called a \textit{typed dependency}.
 
-\subsubsection{The Learning Method}
+\subsection{The Learning Method}
 The authors use a three-stage approach to learning event chains:
 
 \begin{enumerate}
@@ -24,14 +24,14 @@ The marginal event probabilities in the denominator of the PMI approximation are
 \item Finally, they use an agglomerative clustering algorithm---in which events begin with their own clusters, which are then merged based on a similarity metric---to \textbf{identify the event chains}. The clustering algorithm uses the pointwise mutual information from the first step as a similarity score. Once the chains are constructed, their temporal ordering is induced by the SVM model in the second step.
 \end{enumerate}
 
-\subsubsection{Experimental Setup}
+\subsection{Experimental Setup}
 \label{sec:narrativecloze}
 The authors used the Gigaword corpus \citep{parker2011english} as a document source for their experiments. The protagonist for each document is the entity with the highest number of mentions---they used the OpenNLP co-reference engine \citep{baldridge2005opennlp} for entity recognition.  Evaluation was performed using a metric the authors introduced in this paper: the \textbf{narrative cloze} task, an extension to narratives of the cloze test defined by \citep{taylor1953cloze}, in which humans were tasked with filling in missing words in texts. In the narrative cloze test, the system fills missing event tuples into narrative chains.
 
-\subsubsection{Results}
+\subsection{Results}
 They defined the baseline for their evaluation as a version of their model that did not use the protagonist, or its relation to each event as a subject or object, in making predictions. As the baseline could then only produce verb event chains, rather than 2-tuple event chains, they then modified their experimental model to use the protagonist co-reference information during training, but to omit it in the output chains. It is unclear to me, from reading the paper,  where the ``golden'' event data for each document they used to compute accuracy came from. They reported a nearly \textbf{37\%} accuracy improvement relative to the baseline, demonstrating the efficacy of the typed protagonist information. Removing the OpenNLP co-reference resolution step caused accuracy to drop by \textbf{5.7\%}.
 
-\subsubsection{Discussion}
+\subsection{Discussion}
 This was a hugely influential paper in statistical script learning, and while the authors themselves note that the event sequences are a far cry from the richness of Schank \& Abelson's scripts, as defined in \citep{schankandabelson}, they did pave the way for more expressive event models in future approaches, such the 5-tuples in \citep{pichotta2016learning}, which I describe in Section~\ref{sec:pichotta}.
 
 
